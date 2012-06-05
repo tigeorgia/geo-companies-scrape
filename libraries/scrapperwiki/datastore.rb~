@@ -1,0 +1,967 @@
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>
+  ScraperWiki / ScraperWiki / source &mdash; Bitbucket
+</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <!--[if lt IE 9]>
+  <script src="https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/js/lib/html5.js"></script>
+  <![endif]-->
+
+  <script>
+    (function (window) {
+      // prevent stray occurrences of `console.log` from causing errors in IE
+      var console = window.console || (window.console = {});
+      console.log || (console.log = function () {});
+
+      var BB = window.BB || (window.BB = {});
+      BB.debug = false;
+      BB.cname = false;
+      BB.CANON_URL = 'https://bitbucket.org';
+      BB.MEDIA_URL = 'https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/';
+      BB.images = {
+        invitation: 'https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/img/icons/fugue/card_address.png',
+        noAvatar: 'https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/img/no_avatar.png'
+      };
+      BB.user = {"isKbdShortcutsEnabled": true, "isSshEnabled": false};
+      BB.user.has = (function () {
+        var betaFeatures = [];
+        betaFeatures.push('repo2');
+        return function (feature) {
+          return _.contains(betaFeatures, feature);
+        };
+      }());
+      BB.targetUser = BB.user;
+  
+      BB.repo || (BB.repo = {});
+  
+      
+        BB.user.repoPrivilege = null;
+      
+      
+      BB.repo.id = 122918;
+    
+    
+      BB.repo.language = 'python';
+      BB.repo.pygmentsLanguage = 'python';
+    
+    
+      BB.repo.slug = 'scraperwiki';
+    
+    
+      BB.repo.owner = {
+        username: 'ScraperWiki'
+      };
+    
+    
+    
+      // Coerce `BB.repo` to a string to get
+      // "davidchambers/mango" or whatever.
+      BB.repo.toString = function () {
+        return BB.cname ? this.slug : '{owner.username}/{slug}'.format(this);
+      }
+    
+    
+      BB.changeset = '9b4ffe09d9dd'
+    
+    
+  
+    }(this));
+  </script>
+
+  
+
+
+  <link rel="stylesheet" href="https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/bun/css/bundle.css"/>
+
+
+
+  <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Bitbucket" />
+  <link rel="icon" href="https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/img/logo_new.png" type="image/png" />
+  <link type="text/plain" rel="author" href="/humans.txt" />
+
+
+  
+  
+    <script src="https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/bun/js/bundle.js"></script>
+  
+
+
+
+</head>
+
+<body id="" class=" ">
+  <script>
+    if (navigator.userAgent.indexOf(' AppleWebKit/') === -1) {
+      $('body').addClass('non-webkit')
+    }
+    $('body')
+      .addClass($.client.os.toLowerCase())
+      .addClass($.client.browser.toLowerCase())
+  </script>
+  <!--[if IE 8]>
+  <script>jQuery(document.body).addClass('ie8')</script>
+  <![endif]-->
+  <!--[if IE 9]>
+  <script>jQuery(document.body).addClass('ie9')</script>
+  <![endif]-->
+
+  <div id="wrapper">
+
+
+
+  <div id="header-wrap">
+    <div id="header">
+    <ul id="global-nav">
+      <li><a class="home" href="http://www.atlassian.com">Atlassian Home</a></li>
+      <li><a class="docs" href="http://confluence.atlassian.com/display/BITBUCKET">Documentation</a></li>
+      <li><a class="support" href="/support">Support</a></li>
+      <li><a class="blog" href="http://blog.bitbucket.org">Blog</a></li>
+      <li><a class="forums" href="http://groups.google.com/group/bitbucket-users">Forums</a></li>
+    </ul>
+    <a href="/" id="logo">Bitbucket by Atlassian</a>
+
+    <div id="main-nav">
+    
+      <ul class="clearfix">
+        <li><a href="/plans">Pricing &amp; signup</a></li>
+        <li><a id="explore-link" href="/explore">Explore Bitbucket</a></li>
+        <li><a href="/account/signin/?next=/ScraperWiki/scraperwiki/src/tip/scraperlibs/ruby/scraperwiki/lib/scraperwiki/datastore.rb">Log in</a></li>
+        
+
+<li class="search-box">
+  
+    <form action="/repo/all">
+      <input type="search" results="5" autosave="bitbucket-explore-search"
+             name="name" id="searchbox"
+             placeholder="owner/repo" />
+  
+  </form>
+</li>
+
+      </ul>
+    
+    </div>
+
+  
+
+    </div>
+  </div>
+
+    <div id="header-messages">
+  
+    
+    
+    
+    
+  
+
+    
+   </div>
+
+
+
+    <div id="content">
+      <div id="source">
+      
+  
+  
+
+
+
+
+
+  <script>
+    jQuery(function ($) {
+        var cookie = $.cookie,
+            cookieOptions, date,
+            $content = $('#content'),
+            $pane = $('#what-is-bitbucket'),
+            $hide = $pane.find('[href="#hide"]').css('display', 'block').hide();
+
+        date = new Date();
+        date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+        cookieOptions = { path: '/', expires: date };
+
+        if (cookie('toggle_status') == 'hide') $content.addClass('repo-desc-hidden');
+
+        $('#toggle-repo-content').click(function (event) {
+            event.preventDefault();
+            $content.toggleClass('repo-desc-hidden');
+            cookie('toggle_status', cookie('toggle_status') == 'show' ? 'hide' : 'show', cookieOptions);
+        });
+
+        if (!cookie('hide_intro_message')) $pane.show();
+
+        $hide.click(function (event) {
+            event.preventDefault();
+            cookie('hide_intro_message', true, cookieOptions);
+            $pane.slideUp('slow');
+        });
+
+        $pane.hover(
+            function () { $hide.fadeIn('fast'); },
+            function () { $hide.fadeOut('fast'); });
+
+      (function () {
+        // Update "recently-viewed-repos" cookie for
+        // the "repositories" drop-down.
+        var
+          id = BB.repo.id,
+          cookieName = 'recently-viewed-repos_' + BB.user.id,
+          rvr = cookie(cookieName),
+          ids = rvr? rvr.split(','): [],
+          idx = _.indexOf(ids, '' + id);
+
+        // Remove `id` from `ids` if present.
+        if (~idx) ids.splice(idx, 1);
+
+        cookie(
+          cookieName,
+          // Insert `id` as the first item, then call
+          // `join` on the resulting array to produce
+          // something like "114694,27542,89002,84570".
+          [id].concat(ids.slice(0, 4)).join(),
+          {path: '/', expires: 1e6} // "never" expires
+        );
+      }());
+    });
+  </script>
+
+
+
+    <div id="what-is-bitbucket" class="new-to-bitbucket">
+      <h2>ScraperWiki <span id="slogan">is sharing code with you</span></h2>
+      <img src="https://secure.gravatar.com/avatar/27c2ec7d3ec68e4f6e79917df8de5c63?d=identicon&amp;s=32" alt="" class="avatar" />
+      <p>Bitbucket is a code hosting site. Unlimited public and private repositories. Free for small teams.</p>
+      <div class="primary-action-link signup"><a href="/account/signup/?utm_source=internal&utm_medium=banner&utm_campaign=what_is_bitbucket">Try Bitbucket free</a></div>
+      <a href="#hide" title="Don't show this again">Don't show this again</a>
+    </div>
+
+
+<div id="tabs" class="tabs">
+  <ul>
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/overview" id="repo-overview-link">Overview</a>
+      </li>
+    
+
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/downloads" id="repo-downloads-link">Downloads (<span id="downloads-count">0</span>)</a>
+      </li>
+    
+
+    
+      
+    
+
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/pull-requests" id="repo-pr-link">Pull requests (1)</a>
+      </li>
+    
+
+    
+      <li class="selected">
+        
+          <a href="/ScraperWiki/scraperwiki/src" id="repo-source-link">Source</a>
+        
+      </li>
+    
+
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/changesets" id="repo-commits-link">Commits</a>
+      </li>
+    
+
+    <li id="wiki-tab" class="dropdown"
+      style="display:
+          block 
+        
+      ">
+      <a href="/ScraperWiki/scraperwiki/wiki" id="repo-wiki-link">Wiki</a>
+    </li>
+
+    <li id="issues-tab" class="dropdown inertial-hover"
+      style="display:
+        block 
+        
+      ">
+      <a href="/ScraperWiki/scraperwiki/issues?status=new&amp;status=open" id="repo-issues-link">Issues (320) &raquo;</a>
+      <ul>
+        <li><a href="/ScraperWiki/scraperwiki/issues/new">Create new issue</a></li>
+        <li><a href="/ScraperWiki/scraperwiki/issues?status=new">New issues</a></li>
+        <li><a href="/ScraperWiki/scraperwiki/issues?status=new&amp;status=open">Open issues</a></li>
+        <li><a href="/ScraperWiki/scraperwiki/issues?status=duplicate&amp;status=invalid&amp;status=resolved&amp; status=wontfix">Closed issues</a></li>
+        
+        <li><a href="/ScraperWiki/scraperwiki/issues">All issues</a></li>
+        <li><a href="/ScraperWiki/scraperwiki/issues/query">Advanced query</a></li>
+      </ul>
+    </li>
+
+    
+  </ul>
+
+  <ul>
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/descendants" id="repo-forks-link">Forks/queues (15)</a>
+      </li>
+    
+
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/zealots">Followers (<span id="followers-count">46</span>)</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+ 
+
+
+  <div class="repo-menu" id="repo-menu">
+    <ul id="repo-menu-links">
+    
+    
+      <li>
+        <a href="/ScraperWiki/scraperwiki/rss" class="rss" title="RSS feed for ScraperWiki">RSS</a>
+      </li>
+
+      <li><a id="repo-fork-link" href="/ScraperWiki/scraperwiki/fork" class="fork">fork</a></li>
+      
+        
+          <li><a id="repo-patch-queue-link" href="/ScraperWiki/scraperwiki/hack" class="patch-queue">patch queue</a></li>
+        
+      
+      <li>
+        <a id="repo-follow-link" rel="nofollow" href="/ScraperWiki/scraperwiki/follow" class="follow">follow</a>
+      </li>
+      
+          
+      
+      
+        <li class="get-source inertial-hover">
+          <a class="source">get source</a>
+          <ul class="downloads">
+            
+              
+              <li><a rel="nofollow" href="/ScraperWiki/scraperwiki/get/9b4ffe09d9dd.zip">zip</a></li>
+              <li><a rel="nofollow" href="/ScraperWiki/scraperwiki/get/9b4ffe09d9dd.tar.gz">gz</a></li>
+              <li><a rel="nofollow" href="/ScraperWiki/scraperwiki/get/9b4ffe09d9dd.tar.bz2">bz2</a></li>
+            
+          </ul>
+        </li>
+      
+      
+    </ul>
+
+  
+    <ul class="metadata">
+      
+      
+      
+        <li class="branches inertial-hover">branches
+          <ul>
+            <li><a href="/ScraperWiki/scraperwiki/src/96527964a52e" title="20111223-git_endpoint_integration">20111223-git_endpoint_integration</a>
+              
+              
+              <a rel="nofollow" class="menu-compare"
+                 href="/ScraperWiki/scraperwiki/compare/20111223-git_endpoint_integration..default"
+                 title="Show changes between 20111223-git_endpoint_integration and the main branch.">compare</a>
+              
+            </li>
+            <li><a href="/ScraperWiki/scraperwiki/src/1d5eadcee079" title="20120504-simpler_request_data">20120504-simpler_request_data</a>
+              
+              
+              <a rel="nofollow" class="menu-compare"
+                 href="/ScraperWiki/scraperwiki/compare/20120504-simpler_request_data..default"
+                 title="Show changes between 20120504-simpler_request_data and the main branch.">compare</a>
+              
+            </li>
+            <li><a href="/ScraperWiki/scraperwiki/src/a43eb780b93c" title="20120517-exception_reports">20120517-exception_reports</a>
+              
+              
+              <a rel="nofollow" class="menu-compare"
+                 href="/ScraperWiki/scraperwiki/compare/20120517-exception_reports..default"
+                 title="Show changes between 20120517-exception_reports and the main branch.">compare</a>
+              
+            </li>
+            <li><a href="/ScraperWiki/scraperwiki/src/7d4065518cb7" title="default">default</a>
+              
+              
+            </li>
+            <li><a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd" title="stable">stable</a>
+              
+              
+              <a rel="nofollow" class="menu-compare"
+                 href="/ScraperWiki/scraperwiki/compare/stable..default"
+                 title="Show changes between stable and the main branch.">compare</a>
+              
+            </li>
+          </ul>
+        </li>
+      
+      
+      <li class="tags inertial-hover">tags
+        <ul>
+          <li><a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd">tip</a>
+            
+            
+              <a rel="nofollow" class='menu-compare'
+                 href="/ScraperWiki/scraperwiki/compare/..tip"
+                 title="Show changes between tip and the main branch.">compare</a>
+            </li>
+        </ul>
+      </li>
+     
+     
+      
+    </ul>
+  
+  </div>
+
+
+
+
+<div class="repo-menu" id="repo-desc">
+    <ul id="repo-menu-links-mini">
+      
+
+      
+      <li>
+        <a href="/ScraperWiki/scraperwiki/rss" class="rss" title="RSS feed for ScraperWiki"></a>
+      </li>
+
+      <li><a href="/ScraperWiki/scraperwiki/fork" class="fork" title="Fork"></a></li>
+      
+        
+          <li><a href="/ScraperWiki/scraperwiki/hack" class="patch-queue" title="Patch queue"></a></li>
+        
+      
+      <li>
+        <a rel="nofollow" href="/ScraperWiki/scraperwiki/follow" class="follow">follow</a>
+      </li>
+      
+          
+      
+      
+        <li>
+          <a class="source" title="Get source"></a>
+          <ul class="downloads">
+            
+              
+              <li><a rel="nofollow" href="/ScraperWiki/scraperwiki/get/9b4ffe09d9dd.zip">zip</a></li>
+              <li><a rel="nofollow" href="/ScraperWiki/scraperwiki/get/9b4ffe09d9dd.tar.gz">gz</a></li>
+              <li><a rel="nofollow" href="/ScraperWiki/scraperwiki/get/9b4ffe09d9dd.tar.bz2">bz2</a></li>
+            
+          </ul>
+        </li>
+      
+    </ul>
+
+    <h3 id="repo-heading" class="public hg">
+      <a class="owner-username" href="/ScraperWiki">ScraperWiki</a> /
+      <a class="repo-name" href="/ScraperWiki/scraperwiki">ScraperWiki</a>
+    
+      <span><a href="http://scraperwiki.com/">http://scraperwiki.com/</a></span>
+    
+
+    
+    </h3>
+
+    
+      <p class="repo-desc-description">Code repository for <a href="http://ScraperWiki.com" rel="nofollow">ScraperWiki.com</a></p>
+    
+
+  <div id="repo-desc-cloneinfo">Clone this repository (size: 25.6 MB):
+    <a href="https://bitbucket.org/ScraperWiki/scraperwiki" class="https">HTTPS</a> /
+    <a href="ssh://hg@bitbucket.org/ScraperWiki/scraperwiki" class="ssh">SSH</a>
+    
+      <div id="sourcetree-clone-link" class="clone-in-client mac anonymous help-activated"
+          data-desktop-clone-url-ssh="sourcetree://cloneRepo/ssh://hg@bitbucket.org/ScraperWiki/scraperwiki"
+          data-desktop-clone-url-https="sourcetree://cloneRepo/https://bitbucket.org/ScraperWiki/scraperwiki">
+         /
+           <a class="desktop-ssh"
+             href="sourcetree://cloneRepo/ssh://hg@bitbucket.org/ScraperWiki/scraperwiki">SourceTree</a>
+           <a class="desktop-https"
+             href="sourcetree://cloneRepo/https://bitbucket.org/ScraperWiki/scraperwiki">SourceTree</a>
+      </div>
+    
+    <pre id="clone-url-https">hg clone https://bitbucket.org/ScraperWiki/scraperwiki</pre>
+    <pre id="clone-url-ssh">hg clone ssh://hg@bitbucket.org/ScraperWiki/scraperwiki</pre>
+    
+      <img src="https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2011/Dec/21/scraperwiki-logo-3276489594-4_avatar.png" class="repo-avatar" />
+    
+  </div>
+
+        <a href="#" id="toggle-repo-content"></a>
+
+        
+
+</div>
+
+
+
+
+
+
+      
+  <div id="source-container">
+    
+
+  <div id="source-path">
+    <h1>
+      <a href="/ScraperWiki/scraperwiki/src" class="src-pjax">ScraperWiki</a> /
+
+  
+    
+      <a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd/scraperlibs/" class="src-pjax">scraperlibs</a> /
+    
+  
+
+  
+    
+      <a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd/scraperlibs/ruby/" class="src-pjax">ruby</a> /
+    
+  
+
+  
+    
+      <a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd/scraperlibs/ruby/scraperwiki/" class="src-pjax">scraperwiki</a> /
+    
+  
+
+  
+    
+      <a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd/scraperlibs/ruby/scraperwiki/lib/" class="src-pjax">lib</a> /
+    
+  
+
+  
+    
+      <a href="/ScraperWiki/scraperwiki/src/9b4ffe09d9dd/scraperlibs/ruby/scraperwiki/lib/scraperwiki/" class="src-pjax">scraperwiki</a> /
+    
+  
+
+  
+    
+      <span>datastore.rb</span>
+    
+  
+
+    </h1>
+  </div>
+
+  <div class="labels labels-csv">
+  
+    <dl>
+  
+    
+  
+  
+    
+  
+  
+    <dt>Branch</dt>
+    
+      
+        <dd class="branch unabridged"><a href="/ScraperWiki/scraperwiki/changesets/tip/branch(%22stable%22)" title="stable">stable</a></dd>
+      
+    
+  
+</dl>
+
+  
+  </div>
+
+
+  
+  <div id="source-view">
+    <div class="header">
+      <ul class="metadata">
+        <li><code>9b4ffe09d9dd</code></li>
+        
+          
+            <li>115 loc</li>
+          
+        
+        <li>3.7 KB</li>
+      </ul>
+      <ul class="source-view-links">
+        
+        <li><a id="embed-link" href="https://bitbucket.org/ScraperWiki/scraperwiki/src/9b4ffe09d9dd/scraperlibs/ruby/scraperwiki/lib/scraperwiki/datastore.rb?embed=t">embed</a></li>
+        
+        <li><a href="/ScraperWiki/scraperwiki/history/scraperlibs/ruby/scraperwiki/lib/scraperwiki/datastore.rb">history</a></li>
+        
+        <li><a href="/ScraperWiki/scraperwiki/annotate/9b4ffe09d9dd/scraperlibs/ruby/scraperwiki/lib/scraperwiki/datastore.rb">annotate</a></li>
+        
+        <li><a href="/ScraperWiki/scraperwiki/raw/9b4ffe09d9dd/scraperlibs/ruby/scraperwiki/lib/scraperwiki/datastore.rb">raw</a></li>
+        <li>
+          <form action="/ScraperWiki/scraperwiki/diff/scraperlibs/ruby/scraperwiki/lib/scraperwiki/datastore.rb" class="source-view-form">
+          
+            <input type="hidden" name="diff2" value="666954db8316" />
+            <select name="diff1">
+            
+              
+                <option value="666954db8316">666954db8316</option>
+              
+            
+              
+                <option value="51204c2522b4">51204c2522b4</option>
+              
+            
+              
+                <option value="cd11ad3f15e2">cd11ad3f15e2</option>
+              
+            
+              
+                <option value="7fd31092dd6b">7fd31092dd6b</option>
+              
+            
+              
+                <option value="d5b3e0217b18">d5b3e0217b18</option>
+              
+            
+              
+                <option value="c99cdac56cf3">c99cdac56cf3</option>
+              
+            
+              
+                <option value="39024029ab76">39024029ab76</option>
+              
+            
+              
+                <option value="3a1d5d14b3b3">3a1d5d14b3b3</option>
+              
+            
+              
+                <option value="f3d696aa07b1">f3d696aa07b1</option>
+              
+            
+              
+                <option value="6e9d717b12d0">6e9d717b12d0</option>
+              
+            
+            </select>
+            <input type="submit" value="diff" />
+          
+          </form>
+        </li>
+      </ul>
+    </div>
+  
+    <div>
+    <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><a href="#cl-1">  1</a>
+<a href="#cl-2">  2</a>
+<a href="#cl-3">  3</a>
+<a href="#cl-4">  4</a>
+<a href="#cl-5">  5</a>
+<a href="#cl-6">  6</a>
+<a href="#cl-7">  7</a>
+<a href="#cl-8">  8</a>
+<a href="#cl-9">  9</a>
+<a href="#cl-10"> 10</a>
+<a href="#cl-11"> 11</a>
+<a href="#cl-12"> 12</a>
+<a href="#cl-13"> 13</a>
+<a href="#cl-14"> 14</a>
+<a href="#cl-15"> 15</a>
+<a href="#cl-16"> 16</a>
+<a href="#cl-17"> 17</a>
+<a href="#cl-18"> 18</a>
+<a href="#cl-19"> 19</a>
+<a href="#cl-20"> 20</a>
+<a href="#cl-21"> 21</a>
+<a href="#cl-22"> 22</a>
+<a href="#cl-23"> 23</a>
+<a href="#cl-24"> 24</a>
+<a href="#cl-25"> 25</a>
+<a href="#cl-26"> 26</a>
+<a href="#cl-27"> 27</a>
+<a href="#cl-28"> 28</a>
+<a href="#cl-29"> 29</a>
+<a href="#cl-30"> 30</a>
+<a href="#cl-31"> 31</a>
+<a href="#cl-32"> 32</a>
+<a href="#cl-33"> 33</a>
+<a href="#cl-34"> 34</a>
+<a href="#cl-35"> 35</a>
+<a href="#cl-36"> 36</a>
+<a href="#cl-37"> 37</a>
+<a href="#cl-38"> 38</a>
+<a href="#cl-39"> 39</a>
+<a href="#cl-40"> 40</a>
+<a href="#cl-41"> 41</a>
+<a href="#cl-42"> 42</a>
+<a href="#cl-43"> 43</a>
+<a href="#cl-44"> 44</a>
+<a href="#cl-45"> 45</a>
+<a href="#cl-46"> 46</a>
+<a href="#cl-47"> 47</a>
+<a href="#cl-48"> 48</a>
+<a href="#cl-49"> 49</a>
+<a href="#cl-50"> 50</a>
+<a href="#cl-51"> 51</a>
+<a href="#cl-52"> 52</a>
+<a href="#cl-53"> 53</a>
+<a href="#cl-54"> 54</a>
+<a href="#cl-55"> 55</a>
+<a href="#cl-56"> 56</a>
+<a href="#cl-57"> 57</a>
+<a href="#cl-58"> 58</a>
+<a href="#cl-59"> 59</a>
+<a href="#cl-60"> 60</a>
+<a href="#cl-61"> 61</a>
+<a href="#cl-62"> 62</a>
+<a href="#cl-63"> 63</a>
+<a href="#cl-64"> 64</a>
+<a href="#cl-65"> 65</a>
+<a href="#cl-66"> 66</a>
+<a href="#cl-67"> 67</a>
+<a href="#cl-68"> 68</a>
+<a href="#cl-69"> 69</a>
+<a href="#cl-70"> 70</a>
+<a href="#cl-71"> 71</a>
+<a href="#cl-72"> 72</a>
+<a href="#cl-73"> 73</a>
+<a href="#cl-74"> 74</a>
+<a href="#cl-75"> 75</a>
+<a href="#cl-76"> 76</a>
+<a href="#cl-77"> 77</a>
+<a href="#cl-78"> 78</a>
+<a href="#cl-79"> 79</a>
+<a href="#cl-80"> 80</a>
+<a href="#cl-81"> 81</a>
+<a href="#cl-82"> 82</a>
+<a href="#cl-83"> 83</a>
+<a href="#cl-84"> 84</a>
+<a href="#cl-85"> 85</a>
+<a href="#cl-86"> 86</a>
+<a href="#cl-87"> 87</a>
+<a href="#cl-88"> 88</a>
+<a href="#cl-89"> 89</a>
+<a href="#cl-90"> 90</a>
+<a href="#cl-91"> 91</a>
+<a href="#cl-92"> 92</a>
+<a href="#cl-93"> 93</a>
+<a href="#cl-94"> 94</a>
+<a href="#cl-95"> 95</a>
+<a href="#cl-96"> 96</a>
+<a href="#cl-97"> 97</a>
+<a href="#cl-98"> 98</a>
+<a href="#cl-99"> 99</a>
+<a href="#cl-100">100</a>
+<a href="#cl-101">101</a>
+<a href="#cl-102">102</a>
+<a href="#cl-103">103</a>
+<a href="#cl-104">104</a>
+<a href="#cl-105">105</a>
+<a href="#cl-106">106</a>
+<a href="#cl-107">107</a>
+<a href="#cl-108">108</a>
+<a href="#cl-109">109</a>
+<a href="#cl-110">110</a>
+<a href="#cl-111">111</a>
+<a href="#cl-112">112</a>
+<a href="#cl-113">113</a>
+<a href="#cl-114">114</a>
+<a href="#cl-115">115</a>
+</pre></div></td><td class="code"><div class="highlight"><pre><a name="cl-1"></a><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+<a name="cl-2"></a><span class="nb">require</span> <span class="s1">&#39;singleton&#39;</span>
+<a name="cl-3"></a><span class="nb">require</span> <span class="s1">&#39;thread&#39;</span>
+<a name="cl-4"></a><span class="nb">require</span> <span class="s1">&#39;cgi&#39;</span>
+<a name="cl-5"></a>
+<a name="cl-6"></a><span class="c1"># the python version of this makes use of a global static copy of the class </span>
+<a name="cl-7"></a><span class="c1"># so the connection is made only once to the dataproxy</span>
+<a name="cl-8"></a><span class="c1"># I think the Singleton module implements this magically</span>
+<a name="cl-9"></a>
+<a name="cl-10"></a><span class="k">class</span> <span class="nc">SW_DataStore</span>
+<a name="cl-11"></a>    
+<a name="cl-12"></a>    <span class="vc">@@lock</span> <span class="o">=</span> <span class="no">Mutex</span><span class="o">.</span><span class="n">new</span>
+<a name="cl-13"></a>    
+<a name="cl-14"></a>    <span class="kp">include</span> <span class="no">Singleton</span>
+<a name="cl-15"></a>
+<a name="cl-16"></a>    <span class="kp">attr_accessor</span> <span class="ss">:m_port</span><span class="p">,</span> <span class="ss">:m_host</span><span class="p">,</span> <span class="ss">:m_scrapername</span><span class="p">,</span> <span class="ss">:m_runid</span><span class="p">,</span> <span class="ss">:m_attachables</span><span class="p">,</span> <span class="ss">:m_verification_key</span>
+<a name="cl-17"></a>
+<a name="cl-18"></a>    <span class="k">def</span> <span class="nf">initialize</span>
+<a name="cl-19"></a>      <span class="vi">@m_socket</span> <span class="o">=</span> <span class="kp">nil</span>
+<a name="cl-20"></a>      <span class="vi">@m_host</span> <span class="o">=</span> <span class="kp">nil</span>
+<a name="cl-21"></a>      <span class="vi">@m_port</span> <span class="o">=</span> <span class="kp">nil</span>
+<a name="cl-22"></a>      <span class="vi">@m_scrapername</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-23"></a>      <span class="vi">@m_runid</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-24"></a>      <span class="vi">@m_attachables</span> <span class="o">=</span> <span class="o">[]</span>
+<a name="cl-25"></a>      <span class="vi">@verification_key</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-26"></a>    <span class="k">end</span>
+<a name="cl-27"></a>
+<a name="cl-28"></a>
+<a name="cl-29"></a>    <span class="k">def</span> <span class="nf">ensure_connected</span>
+<a name="cl-30"></a>        <span class="c1"># Connect to the data proxy. The data proxy will need to make an Ident call</span>
+<a name="cl-31"></a>        <span class="c1"># back to get the scraperID. Since the data proxy may be on another machine</span>
+<a name="cl-32"></a>        <span class="c1"># and the peer address it sees will have been subject to NAT or masquerading,</span>
+<a name="cl-33"></a>        <span class="c1"># send the UML name and the socket port number in the request.</span>
+<a name="cl-34"></a>
+<a name="cl-35"></a>        <span class="k">if</span> <span class="vi">@m_socket</span> <span class="o">==</span> <span class="kp">nil</span>
+<a name="cl-36"></a>            <span class="vi">@m_socket</span> <span class="o">=</span> <span class="no">TCPSocket</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="vi">@m_host</span><span class="p">,</span> <span class="vi">@m_port</span><span class="p">)</span>
+<a name="cl-37"></a>            <span class="n">proto</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="nb">name</span><span class="p">,</span> <span class="n">ip</span> <span class="o">=</span> <span class="vi">@m_socket</span><span class="o">.</span><span class="n">addr</span><span class="p">()</span>
+<a name="cl-38"></a>            <span class="k">if</span> <span class="vi">@m_scrapername</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="vi">@m_scrapername</span><span class="o">.</span><span class="n">nil?</span>
+<a name="cl-39"></a>              <span class="n">sname</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-40"></a>            <span class="k">else</span>
+<a name="cl-41"></a>              <span class="n">sname</span> <span class="o">=</span> <span class="no">CGI</span><span class="o">::</span><span class="n">escape</span><span class="p">(</span><span class="vi">@m_scrapername</span><span class="p">)</span>
+<a name="cl-42"></a>            <span class="k">end</span>
+<a name="cl-43"></a>            
+<a name="cl-44"></a>            <span class="k">if</span> <span class="vi">@m_runid</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="vi">@m_runid</span><span class="o">.</span><span class="n">nil?</span>
+<a name="cl-45"></a>              <span class="n">rid</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-46"></a>            <span class="k">else</span>
+<a name="cl-47"></a>              <span class="n">rid</span> <span class="o">=</span> <span class="no">CGI</span><span class="o">::</span><span class="n">escape</span><span class="p">(</span><span class="vi">@m_runid</span><span class="p">)</span>
+<a name="cl-48"></a>            <span class="k">end</span>
+<a name="cl-49"></a>
+<a name="cl-50"></a>            <span class="k">if</span> <span class="vi">@m_verification_key</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="vi">@m_verification_key</span><span class="o">.</span><span class="n">nil?</span>
+<a name="cl-51"></a>              <span class="n">verification_key</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-52"></a>            <span class="k">else</span>
+<a name="cl-53"></a>              <span class="n">verification_key</span> <span class="o">=</span> <span class="no">CGI</span><span class="o">::</span><span class="n">escape</span><span class="p">(</span><span class="vi">@m_verification_key</span><span class="p">)</span>
+<a name="cl-54"></a>            <span class="k">end</span>
+<a name="cl-55"></a>
+<a name="cl-56"></a>            <span class="n">getmsg</span> <span class="o">=</span> <span class="s2">&quot;GET /?uml=%s&amp;port=%s&amp;vscrapername=%s&amp;vrunid=%s&amp;verify=%s HTTP/1.1</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="o">[</span><span class="s1">&#39;lxc&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">sname</span><span class="p">,</span> <span class="n">rid</span><span class="p">,</span><span class="n">verification_key</span><span class="o">]</span>
+<a name="cl-57"></a>            <span class="vi">@m_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">getmsg</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a name="cl-58"></a>            <span class="vi">@m_socket</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<a name="cl-59"></a>            
+<a name="cl-60"></a>            <span class="n">buffer</span> <span class="o">=</span> <span class="vi">@m_socket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<a name="cl-61"></a>            <span class="n">result</span> <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<a name="cl-62"></a>            <span class="k">if</span> <span class="n">result</span><span class="o">[</span><span class="s2">&quot;status&quot;</span><span class="o">]</span> <span class="o">!=</span> <span class="s2">&quot;good&quot;</span>
+<a name="cl-63"></a>                <span class="k">raise</span> <span class="n">result</span><span class="o">[</span><span class="s2">&quot;status&quot;</span><span class="o">]</span>
+<a name="cl-64"></a>            <span class="k">end</span>
+<a name="cl-65"></a>        <span class="k">end</span>
+<a name="cl-66"></a>    <span class="k">end</span>
+<a name="cl-67"></a>
+<a name="cl-68"></a>    <span class="k">def</span> <span class="nf">request</span> <span class="p">(</span><span class="n">req</span><span class="p">)</span>
+<a name="cl-69"></a>        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+<a name="cl-70"></a>        <span class="vc">@@lock</span><span class="o">.</span><span class="n">synchronize</span> <span class="p">{</span>
+<a name="cl-71"></a>          <span class="n">ensure_connected</span>
+<a name="cl-72"></a>          <span class="n">reqmsg</span>  <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">req</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a name="cl-73"></a>
+<a name="cl-74"></a>          <span class="n">bytes_sent</span> <span class="o">=</span> <span class="mi">0</span>
+<a name="cl-75"></a>          <span class="k">while</span> <span class="n">bytes_sent</span> <span class="o">&lt;</span> <span class="n">reqmsg</span><span class="o">.</span><span class="n">length</span>
+<a name="cl-76"></a>            <span class="n">bytes_sent</span> <span class="o">+=</span> <span class="vi">@m_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">reqmsg</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">bytes_sent</span><span class="p">,</span> <span class="n">reqmsg</span><span class="o">.</span><span class="n">length</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+<a name="cl-77"></a>          <span class="k">end</span>
+<a name="cl-78"></a>          <span class="vi">@m_socket</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<a name="cl-79"></a>
+<a name="cl-80"></a>          <span class="k">while</span> <span class="kp">true</span>
+<a name="cl-81"></a>            <span class="n">buffer</span> <span class="o">=</span> <span class="vi">@m_socket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+<a name="cl-82"></a>            <span class="k">if</span> <span class="n">buffer</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span>
+<a name="cl-83"></a>                <span class="k">break</span>
+<a name="cl-84"></a>            <span class="k">end</span>
+<a name="cl-85"></a>            <span class="n">text</span> <span class="o">+=</span> <span class="n">buffer</span>
+<a name="cl-86"></a>            <span class="k">if</span> <span class="n">text</span><span class="o">[-</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+<a name="cl-87"></a>                <span class="k">break</span>
+<a name="cl-88"></a>            <span class="k">end</span>
+<a name="cl-89"></a>          <span class="k">end</span>
+<a name="cl-90"></a>        <span class="p">}</span>
+<a name="cl-91"></a>        <span class="k">return</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<a name="cl-92"></a>    <span class="k">end</span>
+<a name="cl-93"></a>
+<a name="cl-94"></a>    <span class="c1"># function used to both initialize the settings and get an instance! </span>
+<a name="cl-95"></a>    <span class="c1"># we are creating object without the fields merely to access the static variables! </span>
+<a name="cl-96"></a>    <span class="k">def</span> <span class="nc">SW_DataStore</span><span class="o">.</span><span class="nf">create</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="kp">nil</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">scrapername</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">runid</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">attachables</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">verification_key</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+<a name="cl-97"></a>        <span class="n">instance</span> <span class="o">=</span> <span class="no">SW_DataStore</span><span class="o">.</span><span class="n">instance</span>
+<a name="cl-98"></a>        <span class="c1"># so, it might be intended that the host and port are</span>
+<a name="cl-99"></a>        <span class="c1"># set once, never to be changed, but this is ruby so</span>
+<a name="cl-100"></a>        <span class="c1"># there&#39;s no way to guarantee that.</span>
+<a name="cl-101"></a>        <span class="k">if</span> <span class="n">host</span> <span class="o">&amp;&amp;</span> <span class="n">port</span> <span class="o">&amp;&amp;</span> <span class="n">instance</span><span class="o">.</span><span class="n">m_port</span><span class="o">.</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="n">instance</span><span class="o">.</span><span class="n">m_host</span><span class="o">.</span><span class="n">nil?</span>
+<a name="cl-102"></a>          <span class="n">instance</span><span class="o">.</span><span class="n">m_host</span> <span class="o">=</span> <span class="n">host</span>
+<a name="cl-103"></a>          <span class="n">instance</span><span class="o">.</span><span class="n">m_port</span> <span class="o">=</span> <span class="n">port</span>
+<a name="cl-104"></a>          <span class="n">instance</span><span class="o">.</span><span class="n">m_scrapername</span> <span class="o">=</span> <span class="n">scrapername</span>
+<a name="cl-105"></a>          <span class="n">instance</span><span class="o">.</span><span class="n">m_runid</span> <span class="o">=</span> <span class="n">runid</span>
+<a name="cl-106"></a>          <span class="n">instance</span><span class="o">.</span><span class="n">m_attachables</span> <span class="o">=</span> <span class="n">attachables</span>
+<a name="cl-107"></a>          <span class="n">instance</span><span class="o">.</span><span class="n">m_verification_key</span> <span class="o">=</span> <span class="n">verification_key</span>
+<a name="cl-108"></a>        <span class="k">elsif</span> <span class="n">host</span> <span class="o">&amp;&amp;</span> <span class="n">port</span>
+<a name="cl-109"></a>          <span class="k">raise</span> <span class="s2">&quot;Can&#39;t change host and port once connection made&quot;</span>
+<a name="cl-110"></a>        <span class="k">elsif</span> <span class="o">!</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">m_port</span><span class="p">)</span> <span class="o">||</span> <span class="o">!</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">m_host</span><span class="p">)</span>
+<a name="cl-111"></a>          <span class="k">raise</span> <span class="s2">&quot;Can&#39;t return a datastore without port/host information&quot;</span>
+<a name="cl-112"></a>        <span class="k">end</span>
+<a name="cl-113"></a>        <span class="n">instance</span>
+<a name="cl-114"></a>    <span class="k">end</span>
+<a name="cl-115"></a><span class="k">end</span>
+</pre></div>
+</td></tr></table>
+    </div>
+  
+  </div>
+  
+
+
+  <div id="mask"><div></div></div>
+
+  </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div id="footer">
+    <ul id="footer-nav">
+      <li>Copyright © 2012 <a href="http://atlassian.com">Atlassian</a></li>
+      <li><a href="http://www.atlassian.com/hosted/terms.jsp">Terms of Service</a></li>
+      <li><a href="http://www.atlassian.com/about/privacy.jsp">Privacy</a></li>
+      <li><a href="//bitbucket.org/site/master/issues/new">Report a Bug to Bitbucket</a></li>
+      <li><a href="http://confluence.atlassian.com/x/IYBGDQ">API</a></li>
+      <li><a href="http://status.bitbucket.org/">Server Status</a></li>
+    </ul>
+    <ul id="social-nav">
+      <li class="blog"><a href="http://blog.bitbucket.org">Bitbucket Blog</a></li>
+      <li class="twitter"><a href="http://www.twitter.com/bitbucket">Twitter</a></li>
+    </ul>
+    <h5>We run</h5>
+    <ul id="technologies">
+      <li><a href="http://www.djangoproject.com/">Django 1.3.1</a></li>
+      <li><a href="//bitbucket.org/jespern/django-piston/">Piston 0.3dev</a></li>
+      <li><a href="http://git-scm.com/">Git 1.7.6</a></li>
+      <li><a href="http://www.selenic.com/mercurial/">Hg 2.2.1</a></li>
+      <li><a href="http://www.python.org">Python 2.7.3</a></li>
+      <li>7891018f8b83 | bitbucket01</li>
+    </ul>
+  </div>
+
+  <script src="https://dwz7u9t8u8usb.cloudfront.net/m/77363346ad34/js/lib/global.js"></script>
+
+
+
+
+
+
+  <script>
+    BB.gaqPush(['_trackPageview']);
+  
+    /* User specified tracking. */
+    BB.gaqPush(
+        ['repo._setAccount', 'UA-21451224-2'],
+        ['repo._trackPageview']
+    );
+  
+    BB.gaqPush(['atl._trackPageview']);
+
+    
+
+    
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        ga.setAttribute('async', 'true');
+        document.documentElement.firstChild.appendChild(ga);
+    }());
+  </script>
+
+</body>
+</html>
