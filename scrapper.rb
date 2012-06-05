@@ -65,13 +65,15 @@ def scrape(data,act,rec)
 	params2 = {"c"=>"app","m"=>"show_legal_person", "legal_code_id"=>cid}
 	pg2 = @br.post(BASE_URL + "/main.php",params2,hdr)
 	Nokogiri::HTML(pg2.body).xpath(".//table[@class='mytbl']/tbody/tr").each{|tr|
+		
 		td2 = tr.xpath("td")   
-  		#if td2.length < 1
-		#	puts tr.inner_html
-        	#	next
+		puts td2.length
+  		#if td2.length < 6
+		#   puts tr.inner_html
+        	#   next
       		#end
-		reg_date = s_text(td2[11].xpath("./td/text()"))
-		puts td2
+		#reg_date = td2[12].xpath("./text()")
+		#puts td2
 	    }
 	    puts ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
 	}
