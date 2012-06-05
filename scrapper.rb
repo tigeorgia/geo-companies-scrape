@@ -6,7 +6,19 @@ require 'mechanize'
 require 'csv'
 require 'json'
 require 'logger'
-require '/home/kamran/Desktop/libraries/libSC.rb'
+require './lib/libSC.rb'
+
+#Sole enterpreneur 	1
+#SPS 			2
+#Cooperative 		3
+#LTD			4
+#Joint Stock Co.	5
+#Society limited	6
+#non-profit		7
+#Legal entity		10
+#Foreign enterprise	26
+#Foreign non-profit	27
+#Busines Partnership	28		
 
 
 BASE_URL = "https://enreg.reestri.gov.ge"
@@ -32,7 +44,8 @@ class Array
 end
 
 def scrape(data,act,rec)
-  if act == "list"
+   hdr = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phbaen4f8kpjoi54"}
+   if act == "list"
     records = []
     Nokogiri::HTML(data).xpath(".//table[@class='main_tbl shadow']/tbody/tr").each{|tr|
       td = tr.xpath("td")
@@ -40,33 +53,43 @@ def scrape(data,act,rec)
 	puts tr.inner_html
         next
       end
-      #records << {
-       # "company_number" => attributes(td[0].xpath("./a"),"onclick").split("(").last.gsub(")",""),
-        #"i_code" => s_text(td[1].xpath("./span/text()")),
-        #"p_code" => s_text(td[2].xpath("./span/text()")),
-        #"company_name" => s_text(td[3].xpath("./text()")),
-        #"type" => s_text(td[4].xpath("./text()")),
-        #"status" => s_text(td[5].xpath("./span/text()")),
-        #"link" => BASE_URL + "/main.php?c=app&m=show_legal_person&legal_code_id=#{attributes(td[0].xpath('./a'),'onclick').split('(').last.gsub(')','')}",
-        #"doc" => Time.now
-      #}
-   # ScraperWiki.save_sqlite(unique_keys=["company_number"],records,table_name='swdata',verbose=2)
+        cid = attributes(td[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
+        i_code = s_text(td[1].xpath("./span/text()"))
+        p_code = s_text(td[2].xpath("./span/text()"))
+        company_name = s_text(td[3].xpath("./text()"))
+        type = s_text(td[4].xpath("./text()"))
+        status = s_text(td[5].xpath("./span/text()"))
+        link = BASE_URL + "/main.php?c=app&m=show_legal_person&legal_code_id=#{attributes(td[0].xpath('./a'),'onclick').split('(').last.gsub(')','')}"
+        scrap_date = Time.now
 
-	puts attributes(td[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
-}
+	params2 = {"c"=>"app","m"=>"show_legal_person", "legal_code_id"=>cid}
+	pg2 = @br.post(BASE_URL + "/main.php",params2,hdr)
+	Nokogiri::HTML(pg2.body).xpath(".//table[@class='mytbl']/tbody/tr").each{|tr|
+		td2 = tr.xpath("td")   
+  		#if td2.length < 1
+		#	puts tr.inner_html
+        	#	next
+      		#end
+		reg_date = s_text(td2[11].xpath("./td/text()"))
+		puts td2
+	    }
+	    puts ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+	}
   end
 end
 
 def action()
-  n = 1
+
   hdr = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phbaen4f8kpjoi54"}
   params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"26"}
+
   begin
     pg = @br.post(BASE_URL + "/main.php",params,hdr)
     scrape(pg.body,"list",{})
-    nex = attributes(Nokogiri::HTML(pg.body).xpath(".//td/a[img[contains(@src,'next.png')]]"),"onclick").scan(/legal_person_paginate\((\d+)\)/).flatten.first
-    #puts nex    
+    nex = attributes(Nokogiri::HTML(pg.body).xpath(".//td/a[img[contains(@src,'next.png')]]"),"onclick").scan(/legal_person_paginate\((\d+)\)/).flatten.first    
     break if nex.nil? 
+	#break if nex > 5
+puts nex
     params = {"c"=>"search","m"=>"find_legal_persons","p"=>nex}
   end while(true)
 end
