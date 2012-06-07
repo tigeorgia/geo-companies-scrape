@@ -6,6 +6,7 @@ require 'mechanize'
 require 'csv'
 require 'json'
 require 'logger'
+require 'pdf/reader'
 require './libSC.rb'
 
 #Sole enterpreneur 	1
@@ -30,6 +31,8 @@ HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phba
   b.retry_change_requests = true
   b.verify_mode = OpenSSL::SSL::VERIFY_NONE
 }
+@gent = Mechanize.new
+@gent.pluggable_parser.pdf = Mechanize::FileSaver
 
 class String
   def pretty
@@ -91,6 +94,27 @@ def scrape(data,act,rec)
   end
 end
 
+
+def pdf_parser(file)
+	receiver = PDF::Reader::RegisterReceiver.new
+	filename = File.expand_path(file)
+	PDF::Reader.open(filename) do |reader|
+	  reader.pages.each do |page|
+	    puts page.text
+	  end
+	end
+end
+
+#this method saves the extract and calls pdf_parser to read/parse the extract and then removes the file
+def get_extract(scandoc_id, app_id)
+  ext_param = {"c"=>"mortgage","m"=>"get_output_by_id", "scandoc_id"=>scandoc_id, "app_id"=>app_id}
+  @gent.post(BASE_URL + "/main.php",ext_param,HDR)
+  File.rename("./enreg.reestri.gov.ge/main.php", "./enreg.reestri.gov.ge/temp_extract.pdf")
+  pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf")
+  File.delete("./enreg.reestri.gov.ge/temp_extract.pdf")
+end
+
+
 def action()
 
   params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"26"}
@@ -106,6 +130,7 @@ def action()
   end while(true)
 end
 
+#goes to the last dead-end page and get the info 
 def get_add(id)
    params3 = {"c"=>"app","m"=>"show_app", "app_id"=> id}
    pg3 = @br.post(BASE_URL + "/main.php",params3,HDR)
@@ -117,10 +142,13 @@ def get_add(id)
       next
     end
     link = attributes(rows[0].xpath("./a"),"href")
+    scandoc_id = CGI.parse(link)['scandoc_id']
+    app_id = CGI.parse(link)['app_id']
     dummy = rows[1].xpath("./span")
     text = s_text(dummy[0].xpath("text()"))
     extract_date = s_text(dummy[1].xpath("text()"))
     puts link + "**" + text + "**" + extract_date
+    get_extract(scandoc_id, app_id)
    }
 
 end
