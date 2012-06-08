@@ -33,7 +33,7 @@ HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phba
   b.verify_mode = OpenSSL::SSL::VERIFY_NONE
 }
 @gent = Mechanize.new
-@gent.pluggable_parser.pdf = Mechanize::FileSaver
+@gent.pluggable_parser.pdf = Mechanize::Download
 
 class String
   def pretty
@@ -78,10 +78,10 @@ def scrape(data,act,rec)
             end
             dummy1 = s_text(td2[0].xpath("./text()"))
             dummy2 = s_text(td2[1])
-            puts "<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            puts dummy1
-            puts "<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            puts dummy2
+            #puts "<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            #puts dummy1
+            #puts "<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            #puts dummy2
           #reg_date = td2[12].xpath("./text()")
           #puts td2
         }
@@ -110,8 +110,7 @@ end
 #calls pdf_parser to read/parse the extract and then removes the file
 def get_extract(scandoc_id, app_id)
   ext_param = {"c"=>"mortgage","m"=>"get_output_by_id", "scandoc_id"=>scandoc_id, "app_id"=>app_id}
-  @gent.post(BASE_URL + "/main.php",ext_param,HDR)
-  File.rename("./enreg.reestri.gov.ge/main.php", "./enreg.reestri.gov.ge/temp_extract.pdf")
+  @gent.post(BASE_URL + "/main.php",ext_param,HDR).save('./enreg.reestri.gov.ge/temp_extract.pdf')
   pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf")
   File.delete("./enreg.reestri.gov.ge/temp_extract.pdf")
 end
@@ -134,7 +133,7 @@ end
 
 #goes to the last dead-end page and get the info
 def get_add(id)
-  puts "ID + " + id
+  #puts "ID + " + id
    params3 = {"c"=>"app","m"=>"show_app", "app_id"=> id}
    pg3 = @br.post(BASE_URL + "/main.php",params3,HDR)
    
