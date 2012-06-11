@@ -8,6 +8,7 @@ require 'json'
 require 'logger'
 require 'pdf/reader'
 require './libSC.rb'
+require 'sqlite3'
 
 
 #Sole entrepreneur 	1
@@ -21,8 +22,8 @@ require './libSC.rb'
 #Foreign enterprise	26
 #Foreign non-profit	27
 #Business Partnership	28
-
-
+$my_id = 6
+DB = SQLite3::Database.open "scrapper_db.db"
 BASE_URL = "https://enreg.reestri.gov.ge"
 HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phbaen4f8kpjoi54"}
 @br = Mechanize.new { |b|
@@ -32,6 +33,7 @@ HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phba
   b.retry_change_requests = true
   b.verify_mode = OpenSSL::SSL::VERIFY_NONE
 }
+
 @gent = Mechanize.new
 @gent.pluggable_parser.pdf = Mechanize::Download
 
@@ -49,7 +51,7 @@ end
 
 def scrape(data,act,rec)
     if act == "list"
-      records = []
+      records = Hash.new("")
       Nokogiri::HTML(data).xpath(".//table[@class='main_tbl shadow']/tbody/tr").each{|tr|
         td = tr.xpath("td")
         if td.length < 6
@@ -57,40 +59,35 @@ def scrape(data,act,rec)
           next
         end
         cid = attributes(td[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
-        i_code = s_text(td[1].xpath("./span/text()"))
-        p_code = s_text(td[2].xpath("./span/text()"))
-        company_name = s_text(td[3].xpath("./text()"))
-        type = s_text(td[4].xpath("./text()"))
-        status = s_text(td[5].xpath("./span/text()"))
         link = BASE_URL + "/main.php?c=app&m=show_legal_person&legal_code_id=#{attributes(td[0].xpath('./a'),'onclick').split('(').last.gsub(')','')}"
-        scrap_date = Time.now
-
+        records["link"] = link
         params2 = {"c"=>"app","m"=>"show_legal_person", "legal_code_id"=>cid}
-        #puts cid
+
         pg2 = @br.post(BASE_URL + "/main.php",params2,HDR)
-        puts i_code
+
         Nokogiri::HTML(pg2.body).xpath(".//table[@class='mytbl']/tbody/tr").each{|tr|
             td2 = tr.xpath("td")
-            #puts td2.length
             if td2.length != 2
               #puts tr.inner_html
               next
             end
-            dummy1 = s_text(td2[0].xpath("./text()"))
-            dummy2 = s_text(td2[1])
-            #puts "<<<<<<<<<<<<<<<<<<1>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            #puts dummy1
-            #puts "<<<<<<<<<<<<<<<<<<2>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            #puts dummy2
-          #reg_date = td2[12].xpath("./text()")
-          #puts td2
-        }
-        Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'განცხადებები']]/tbody/tr").each{|tr|
-          td3 = tr.xpath("td")
-          app_id = attributes(td3[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
-          get_add(app_id)
+            col1 = s_text(td2[0].xpath("./text()"))
+            col2 = s_text(td2[1])
+            records[col1] = col2
+            puts col1 + " =>" + records[col1]
+
+
+        #Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'განცხადებები']]/tbody/tr").each{|tr|
+         # td3 = tr.xpath("td")
+         # app_id = attributes(td3[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
+        #  get_add(app_id)
       }
+
+      $my_id+=1
 	    puts ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+      if(records != nil )
+        insert_comp(records, $my_id)
+      end
 	}
   end
 end
@@ -123,11 +120,11 @@ def action()
   begin
     pg = @br.post(BASE_URL + "/main.php",params,HDR)
     scrape(pg.body,"list",{})
-    nex = attributes(Nokogiri::HTML(pg.body).xpath(".//td/a[img[contains(@src,'next.png')]]"),"onclick").scan(/legal_person_paginate\((\d+)\)/).flatten.first
-    break if nex.nil?
+    next_pg = attributes(Nokogiri::HTML(pg.body).xpath(".//td/a[img[contains(@src,'next.png')]]"),"onclick").scan(/legal_person_paginate\((\d+)\)/).flatten.first
+    break if next_pg.nil?
     #break if nex > 5
     #puts nex
-    params = {"c"=>"search","m"=>"find_legal_persons","p"=>nex}
+    params = {"c"=>"search","m"=>"find_legal_persons","p"=>next_pg}
   end while(true)
 end
 
@@ -160,5 +157,28 @@ def get_add(id)
    }
 
 end
+
+#insert info about company to the database
+#verify if company already in the database(check id_code, p_code, state_reg_code)
+#if it is in db verify whether anything different, if different alert, else insert
+def insert_comp(data, id)
+  #query_qr = DB.prepare("SELECT * FROM COMPANY WHERE id_code=? OR p_code=? OR state_reg_code=?")
+  #query_qr.bind_params(data["საიდენტიფიკაციო კოდი"], data["საიდენტიფიკაციო კოდი"], data["სახელმწიფო რეგისტრაციის ნომერი"])
+
+  #result = query_qr.execute
+  #result.each do |row|
+ #    puts row.join "\s"
+  #end
+  
+  
+  DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
+  :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)", "cid" => id, "id_code"=>data["საიდენტიფიკაციო კოდი"],
+    "p_code"=>data["პირადი ნომერი"], "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
+    "comp_name"=>data["დასახელება"], "legal_form"=>data["სამართლებრივი ფორმა"],
+    "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღ"], "status"=>data["სტატუსი"], "scrap_date"=> "Time.now.utc.iso8601")
+
+end
+  
+
 
 action()
