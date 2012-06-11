@@ -1,1 +1,160 @@
-Hello world
+DB descriptions:
+
+People(pid, name, address, p/n, date_of_birth)
+
+company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, type, state_reg_date, status, scrap_date)
+
+App_status(aid, cid, date, status, text)
+filed(pid, aid, cid, date)
+
+scans(cid, sid, date, link_to_scan, text)
+extracts(cid, eid, reg_number, application_num, prep_date, address, email, reg_authority, tax_inpsection, seizure, lien, property, debtor)
+pages(cid, page_id, property_num, B_number, entity_name, legal_form, reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes)
+page_to_person(cid, page_id, pid, role)
+person_to_extract(cid, eid, pid, role)
+comp_to_person(rid, pid, cid, since, until, relation)
+
+Users(email, first_name, last_name, password, account_type)
+watches(email, cid)
+
+
+--------------QUERIES-------------------------
+
+ 
+CREATE TABLE people
+(pid INTEGER NOT NULL,
+name TEXT(40),
+address TEXT(64),
+personal_number TEXT(16),
+birth_date TEXT(25),
+PRIMARY KEY (pid))
+
+
+CREATE TABLE company
+(cid INTEGER NOT NULL,
+id_code TEXT(16),
+p_code VARCHAR(16),
+state_reg_code TEXT(25),
+comp_name TEXT(64),
+legal_form TEXT(25),
+type TEXT(25),
+state_reg_date TEXT(25),
+status VARCHAR(25),
+scrap_date TEXT(25),
+PRIMARY KEY (cid))
+
+
+CREATE TABLE app_status
+(aid INTEGER NOT NULL,
+cid INTEGER NOT NULL,
+date TEXT(25),
+status TEXT(25),
+text TEXT(2048),
+PRIMARY KEY (aid, cid),
+FOREIGN KEY(cid) REFERENCES company(cid))
+
+
+CREATE TABLE filed
+(pid INTEGER NOT NULL,
+aid INTEGER NOT NULL,
+cid INTEGER NOT NULL,
+date TEXT(25),
+PRIMARY KEY (pid, aid, cid)
+FOREIGN KEY(cid) REFERENCES company(cid)
+FOREIGN KEY(aid) REFERENCES app_status(aid)
+FOREIGN KEY(pid) REFERENCES people(pid))
+
+CREATE TABLE scans
+(cid INTEGER NOT NULL,
+sid INTEGER NOT NULL,
+date TEXT(25),
+links_to_scan VARCHAR(128),
+text TEXT(2048),
+PRIMARY KEY (cid, sid)
+FOREIGN KEY(cid) REFERENCES company(cid))
+
+CREATE TABLE extracts
+(cid INTEGER NOT NULL,
+eid INTEGER NOT NULL,
+reg_number INTEGER,
+application_num VARCHAR(10),
+prep_date TEXT(25),
+address TEXT(64),
+email VARCHAR(25),
+reg_authority TEXT(64),
+tax_inspection TEXT(64),
+seizure TEXT(64),
+lien TEXT(64),
+property TEXT(64),
+debtor TEXT(64),
+PRIMARY KEY (cid, eid)
+FOREIGN KEY(cid) REFERENCES company(cid))
+
+
+CREATE TABLE pages
+(cid INTEGER NOT NULL,
+page_id INTEGER NOT NULL,
+property_num TEXT(16),
+B_number VARCHAR(10),
+entity_name TEXT(64),
+legal_form TEXT(25),
+reor_type TEXT(25),
+number_of TEXT(25),
+replacement_info TEXT(256),
+attached_docs TEXT(1024),
+backed_docs TEXT(1024),
+notes TEXT(1024),
+PRIMARY KEY (cid, page_id)
+FOREIGN KEY(cid) REFERENCES company(cid))
+
+
+CREATE TABLE page_to_person
+(cid INTEGER NOT NULL,
+page_id INTEGER NOT NULL,
+pid INTEGER NOT NULL,
+role TEXT(64),
+PRIMARY KEY (cid, page_id, pid)
+FOREIGN KEY(cid) REFERENCES company(cid)
+FOREIGN KEY(page_id) REFERENCES pages(page_id)
+FOREIGN KEY(pid) REFERENCES people(pid))
+
+CREATE TABLE person_to_extract
+(cid INTEGER NOT NULL,
+eid INTEGER NOT NULL,
+pid INTEGER NOT NULL,
+role TEXT(64),
+PRIMARY KEY (cid, eid, pid)
+FOREIGN KEY(cid) REFERENCES company(cid)
+FOREIGN KEY(eid) REFERENCES extracts(eid)
+FOREIGN KEY(pid) REFERENCES people(pid))
+
+CREATE TABLE comp_to_person
+(rid INTEGER NOT NULL,
+pid INTEGER NOT NULL,
+cid INTEGER NOT NULL,
+since TEXT(25),
+until TEXT(25),
+relation TEXT(64),
+PRIMARY KEY (rid, pid, cid)
+FOREIGN KEY(cid) REFERENCES company(cid)
+FOREIGN KEY(pid) REFERENCES people(pid))
+
+
+CREATE TABLE users
+(email VARCHAR(32) NOT NULL,
+first_name TEXT(25),
+last_name TEXT(25),
+password VARCHAR(12),
+account_type VARCHAR(8),
+PRIMARY KEY (email))
+
+
+CREATE TABLE watches
+(email VARCHAR(25) NOT NULL,
+cid INTEGER NOT NULL,
+PRIMARY KEY (email, cid)
+FOREIGN KEY(email) REFERENCES users(email)
+FOREIGN KEY(cid) REFERENCES company(cid))
+
+
+
