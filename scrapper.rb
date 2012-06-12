@@ -83,10 +83,10 @@ def scrape(data,act,rec)
         #  get_add(app_id)
       }
 
-      $my_id+=1
+      
 	    puts ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
       if(records != nil )
-        insert_comp(records, $my_id)
+        insert_comp(records)
       end
 	}
   end
@@ -161,22 +161,73 @@ end
 #insert info about company to the database
 #verify if company already in the database(check id_code, p_code, state_reg_code)
 #if it is in db verify whether anything different, if different alert, else insert
-def insert_comp(data, id)
-  #query_qr = DB.prepare("SELECT * FROM COMPANY WHERE id_code=? OR p_code=? OR state_reg_code=?")
-  #query_qr.bind_params(data["საიდენტიფიკაციო კოდი"], data["საიდენტიფიკაციო კოდი"], data["სახელმწიფო რეგისტრაციის ნომერი"])
+def insert_comp(data)
+  query_qr = "SELECT * FROM COMPANY WHERE "
+  if data["საიდენტიფიკაციო კოდი"] != ""
+    query_qr = query_qr + " id_code = '#{data["საიდენტიფიკაციო კოდი"]}' "
+    id_added = true
+    valid_query = true
+  end
+  if data["პირადი ნომერი"] != ""
+    if id_added == true
+      query_qr = query_qr + " OR "
+    end
+    query_qr = query_qr + " p_code = '#{data["პირადი ნომერი"]}' "
+    pcode_added = true
+    valid_query = true
+  end
+  if data["სახელმწიფო რეგისტრაციის ნომერი"] != ""
+    if pcode_added or id_added
+      query_qr = query_qr + " OR "
+    end
+    query_qr = query_qr + " state_reg_code = '#{data["სახელმწიფო რეგისტრაციის ნომერი"]}' "
+    valid_query = true
+  end
 
-  #result = query_qr.execute
-  #result.each do |row|
- #    puts row.join "\s"
-  #end
-  
-  
-  DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
-  :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)", "cid" => id, "id_code"=>data["საიდენტიფიკაციო კოდი"],
-    "p_code"=>data["პირადი ნომერი"], "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
-    "comp_name"=>data["დასახელება"], "legal_form"=>data["სამართლებრივი ფორმა"],
-    "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღ"], "status"=>data["სტატუსი"], "scrap_date"=> "Time.now.utc.iso8601")
+  if valid_query
+    statement = DB.prepare(query_qr)
+    result = statement.execute
+    if result.next() == nil
+      max_row = DB.execute("SELECT MAX(cid) FROM company")
+      new_cid = Integer(max_row[0][0]) + 1
+      DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
+      :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
+        "cid" => new_cid,
+        "id_code"=>data["საიდენტიფიკაციო კოდი"],
+        "p_code"=>data["პირადი ნომერი"],
+        "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
+        "comp_name"=>data["დასახელება"],
+        "legal_form"=>data["სამართლებრივი ფორმა"],
+        "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
+        "status"=>data["სტატუსი"],
+        "scrap_date"=> Time.now.utc.iso8601)
+      puts "<<<<<<<<<<<<<<<<<<<<<<<inserted>>>>>>>>>>>>>>>>>>>>>>>"
+    else
+      result.reset()
+      result.each do |row|
+         if row[1] != data["საიდენტიფიკაციო კოდი"] or
+             row[2] != data["პირადი ნომერი"] or
+             row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or
+             row[4] != data["დასახელება"] or
+             row[5] != data["სამართლებრივი ფორმა"] or
+             row[6] != data["სახელმწიფო რეგისტრაციის თარიღი"] or
+             row[7] != data["სტატუსი"]
 
+           puts  row[1]+"!="+data["საიდენტიფიკაციო კოდი"] 
+           puts  row[2]+"!="+data["პირადი ნომერი"]
+           puts  row[3]+"!="+data["სახელმწიფო რეგისტრაციის ნომერი"]
+           puts  row[4]+"!="+data["დასახელება"]
+           puts  row[5]+"!="+ data["სამართლებრივი ფორმა"]
+           puts  row[6]+"!="+data["სახელმწიფო რეგისტრაციის თარიღი"]
+           puts  row[7]+"!="+data["სტატუსი"]
+           puts "<<<<<<<<<<<<<<<<ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+           puts "<<<<<<<<<<<<<<<<UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+         else
+           puts "<<<<<<<<<<<<<<<<<SAME SEA>>>>>>>>>>>>>>>>>>>>>>>>"
+         end
+      end
+    end
+  end
 end
   
 
