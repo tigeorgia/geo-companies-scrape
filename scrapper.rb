@@ -37,6 +37,8 @@ HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phba
 @gent = Mechanize.new
 @gent.pluggable_parser.pdf = Mechanize::Download
 
+$current_cid
+
 class String
   def pretty
     self.strip.gsub(/\n|\t|\r/,' ').gsub(/\s+/," ").strip
@@ -74,20 +76,22 @@ def scrape(data,act,rec)
             col1 = s_text(td2[0].xpath("./text()"))
             col2 = s_text(td2[1])
             records[col1] = col2
-            puts col1 + " =>" + records[col1]
+            #puts col1 + " =>" + records[col1]
 
-
-        #Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'განცხადებები']]/tbody/tr").each{|tr|
-         # td3 = tr.xpath("td")
-         # app_id = attributes(td3[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
-        #  get_add(app_id)
-      }
-
-      
-	    puts ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+        }
       if(records != nil )
         insert_comp(records)
+      else
+        next
       end
+
+      Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'განცხადებები']]/tbody/tr").each{|tr|
+          td3 = tr.xpath("td")
+          app_id = attributes(td3[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
+          get_add(app_id)
+        }
+
+	    puts ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
 	}
   end
 end
@@ -108,7 +112,7 @@ end
 def get_extract(scandoc_id, app_id)
   ext_param = {"c"=>"mortgage","m"=>"get_output_by_id", "scandoc_id"=>scandoc_id, "app_id"=>app_id}
   @gent.post(BASE_URL + "/main.php",ext_param,HDR).save('./enreg.reestri.gov.ge/temp_extract.pdf')
-  pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf")
+  #pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf")
   File.delete("./enreg.reestri.gov.ge/temp_extract.pdf")
 end
 
@@ -128,9 +132,11 @@ def action()
   end while(true)
 end
 
+
 #goes to the last dead-end page and get the info
 def get_add(id)
-  #puts "ID + " + id
+  puts "ID + " + id
+   page_data = Hash.new()
    params3 = {"c"=>"app","m"=>"show_app", "app_id"=> id}
    pg3 = @br.post(BASE_URL + "/main.php",params3,HDR)
    
@@ -146,7 +152,7 @@ def get_add(id)
     dummy = rows[1].xpath("./span")
     text = s_text(dummy[0].xpath("text()"))
     extract_date = s_text(dummy[1].xpath("text()"))
-    puts link + "**" + text + "**" + extract_date
+    #puts link + "**" + text + "**" + extract_date
     
     #check whether the document is djvu file, if true, saves the link to the djvu
     if s_text(rows[2]).end_with?(".djvu")
@@ -156,6 +162,38 @@ def get_add(id)
     get_extract(scandoc_id, app_id)
    }
 
+    b_number = s_text((Nokogiri::HTML(pg3.body).xpath(".//tr[td[contains(text(), 'რეგისტრაციის ნომერი')]]/td/span[text()]")))
+    page_data["b_number"] = b_number
+    page_data["property_num"] = id
+    page_data["cid"] = $current_cid
+    Nokogiri::HTML(pg3.body).xpath(".//div[@id = 'application_tab']/table/tbody/tr").each{|tr|
+    row_data = tr.xpath("td")
+    if row_data.length != 2
+      next
+    end
+    val1 = s_text(row_data[0])
+    val2 = s_text(row_data[1])
+    page_data[val1] = val2
+   }
+   max_pg_id = DB.execute("SELECT MAX(page_id) FROM pages")
+   new_page_id = Integer(max_pg_id[0][0]) + 1
+   DB.execute("INSERT INTO pages(cid, page_id, property_num, B_number, entity_name,
+    legal_form, reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes)
+    VALUES (:cid, :page_id, :property_num, :B_number, :entity_name, :legal_form,
+          :reorg_type, :number_of, :replacement_info, :attached_docs, :backed_docs, :notes)",
+          "cid" => $current_cid,
+          "page_id" => new_page_id,
+          "property_num"=> id,
+          "B_number"=> b_number,
+          "entity_name"=>page_data["სუბიექტის დასახელება"],
+          "legal_form"=>page_data["სამართლებრივი ფორმა"],
+          "reorg_type" => page_data["რეორგანიზაციის ტიპი"] ,
+          "number_of"=> page_data["რაოდენობა"],
+          "replacement_info"=>page_data["შესაცვლელი რეკვიზიტი:"],
+          "attached_docs"=>page_data["თანდართული დოკუმენტაცია"],
+          "backed_docs"=>page_data["გასაცემი დოკუმენტები"],
+          "notes"=>page_data["შენიშვნა"]
+  )
 end
 
 #insert info about company to the database
@@ -163,6 +201,23 @@ end
 #if it is in db verify whether anything different, if different alert, else insert
 def insert_comp(data)
   query_qr = "SELECT * FROM COMPANY WHERE "
+  #critical section some companies lack all of above fields to be revised for update!! TODO
+  if data["საიდენტიფიკაციო კოდი"]=="" and data["პირადი ნომერი"]=="" and
+      data["სახელმწიფო რეგისტრაციის ნომერი"] == ""
+    $current_cid += 1
+    DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
+      :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
+        "cid" => $current_cid,
+        "id_code"=>data["საიდენტიფიკაციო კოდი"],
+        "p_code"=>data["პირადი ნომერი"],
+        "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
+        "comp_name"=>data["დასახელება"],
+        "legal_form"=>data["სამართლებრივი ფორმა"],
+        "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
+        "status"=>data["სტატუსი"],
+        "scrap_date"=> Time.now.utc.iso8601)
+  end
+
   if data["საიდენტიფიკაციო კოდი"] != ""
     query_qr = query_qr + " id_code = '#{data["საიდენტიფიკაციო კოდი"]}' "
     id_added = true
@@ -190,6 +245,7 @@ def insert_comp(data)
     if result.next() == nil
       max_row = DB.execute("SELECT MAX(cid) FROM company")
       new_cid = Integer(max_row[0][0]) + 1
+      $current_cid = new_cid
       DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
       :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
         "cid" => new_cid,
@@ -201,10 +257,13 @@ def insert_comp(data)
         "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
         "status"=>data["სტატუსი"],
         "scrap_date"=> Time.now.utc.iso8601)
+      puts data["საიდენტიფიკაციო კოდი"]
+      puts new_cid
       puts "<<<<<<<<<<<<<<<<<<<<<<<inserted>>>>>>>>>>>>>>>>>>>>>>>"
     else
       result.reset()
       result.each do |row|
+        $current_cid = Integer(row[0])
          if row[1] != data["საიდენტიფიკაციო კოდი"] or
              row[2] != data["პირადი ნომერი"] or
              row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or
