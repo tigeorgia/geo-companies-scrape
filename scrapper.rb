@@ -22,7 +22,7 @@ require 'sqlite3'
 #Foreign enterprise	26
 #Foreign non-profit	27
 #Business Partnership	28
-$my_id = 6
+
 DB = SQLite3::Database.open "scrapper_db.db"
 BASE_URL = "https://enreg.reestri.gov.ge"
 HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phbaen4f8kpjoi54"}
@@ -75,6 +75,9 @@ def scrape(data,act,rec)
             end
             col1 = s_text(td2[0].xpath("./text()"))
             col2 = s_text(td2[1])
+            if col2 == "" or col2 == " "
+              col2 = nil
+            end
             records[col1] = col2
             #puts col1 + " =>" + records[col1]
 
@@ -119,7 +122,7 @@ end
 
 def action()
 
-  params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"26"}
+  params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"3"}
 
   begin
     pg = @br.post(BASE_URL + "/main.php",params,HDR)
@@ -135,7 +138,7 @@ end
 
 #goes to the last dead-end page and get the info
 def get_add(id)
-  puts "ID + " + id
+  
    page_data = Hash.new()
    params3 = {"c"=>"app","m"=>"show_app", "app_id"=> id}
    pg3 = @br.post(BASE_URL + "/main.php",params3,HDR)
@@ -173,18 +176,34 @@ def get_add(id)
     end
     val1 = s_text(row_data[0])
     val2 = s_text(row_data[1])
+    if val2 == "" or val2 == " "
+      val2 = nil
+    end
     page_data[val1] = val2
    }
-   max_pg_id = DB.execute("SELECT MAX(page_id) FROM pages")
+   insert_page(page_data)
+   if page_data["განმცხადებელი"] != nil
+     pid = insert_person(page_data["განმცხადებელი"])
+   end
+   
+   puts "THE NEW PID = #{pid}"
+   
+end
+
+def insert_page(page_data)
+  max_pg_id = DB.execute("SELECT MAX(page_id) FROM pages")
    new_page_id = Integer(max_pg_id[0][0]) + 1
-   DB.execute("INSERT INTO pages(cid, page_id, property_num, B_number, entity_name,
-    legal_form, reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes)
-    VALUES (:cid, :page_id, :property_num, :B_number, :entity_name, :legal_form,
+   stm = DB.prepare("SELECT * FROM PAGES WHERE B_number = '#{page_data["b_number"]}'")
+   result = stm.execute
+   if result.next() == nil
+     DB.execute("INSERT INTO pages(cid, page_id, property_num, B_number, entity_name,
+          legal_form, reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes)
+          VALUES (:cid, :page_id, :property_num, :B_number, :entity_name, :legal_form,
           :reorg_type, :number_of, :replacement_info, :attached_docs, :backed_docs, :notes)",
           "cid" => $current_cid,
           "page_id" => new_page_id,
-          "property_num"=> id,
-          "B_number"=> b_number,
+          "property_num"=> page_data["property_num"],
+          "B_number"=> page_data["b_number"],
           "entity_name"=>page_data["სუბიექტის დასახელება"],
           "legal_form"=>page_data["სამართლებრივი ფორმა"],
           "reorg_type" => page_data["რეორგანიზაციის ტიპი"] ,
@@ -192,20 +211,139 @@ def get_add(id)
           "replacement_info"=>page_data["შესაცვლელი რეკვიზიტი:"],
           "attached_docs"=>page_data["თანდართული დოკუმენტაცია"],
           "backed_docs"=>page_data["გასაცემი დოკუმენტები"],
-          "notes"=>page_data["შენიშვნა"]
-  )
-end
+          "notes"=>page_data["შენიშვნა"])
+   else
+      result.reset()
+      result.each do |row|
+        if row[0] != $current_cid or
+              row[2] != page_data["property_num"] or
+              row[3] != page_data["b_number"] or
+              row[4] != page_data["სუბიექტის დასახელება"] or
+              row[5] != page_data["სამართლებრივი ფორმა"] or
+              row[6] != page_data["რეორგანიზაციის ტიპი"] or
+              row[7] != page_data["რაოდენობა"] or
+              row[8] != page_data["შესაცვლელი რეკვიზიტი:"] or
+              row[9] != page_data["თანდართული დოკუმენტაცია"] or
+              row[10] != page_data["გასაცემი დოკუმენტები"] or
+              row[11] != page_data["შენიშვნა"]
 
+        puts "CID"
+        puts row[0]
+        puts $current_cid
+        puts "--------------------------------"
+        puts row[2]+"!="+ page_data["property_num"]
+        puts row[3]+"!="+ page_data["b_number"]
+
+        puts row[4]
+        puts page_data["სუბიექტის დასახელება"]
+        puts "--------------------------------"
+        puts row[5]
+        puts page_data["სამართლებრივი ფორმა"]
+        puts "--------------------------------"
+        puts row[6]
+        puts page_data["რეორგანიზაციის ტიპი"]
+        puts "--------------------------------"
+        puts row[7]
+        puts page_data["რაოდენობა"]
+        puts "--------------------------------"
+        puts row[8]
+        puts page_data["შესაცვლელი რეკვიზიტი:"]
+        puts "--------------------------------"
+        puts row[9]
+        puts page_data["თანდართული დოკუმენტაცია"]
+        puts "--------------------------------"
+        puts row[10]
+        puts page_data["გასაცემი დოკუმენტები"]
+        puts "--------------------------------"
+        puts row[11]
+        puts page_data["შენიშვნა"]
+            puts "<<<<<<<<<<<<<<<<page ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            puts "<<<<<<<<<<<<<<<<page UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+        else
+          puts "SAME PAGE -------------------------->"
+        end
+      end
+   end
+end
 #insert info about company to the database
 #verify if company already in the database(check id_code, p_code, state_reg_code)
 #if it is in db verify whether anything different, if different alert, else insert
 def insert_comp(data)
+  max_row = DB.execute("SELECT MAX(cid) FROM company")
+  new_cid = Integer(max_row[0][0]) + 1
+
   query_qr = "SELECT * FROM COMPANY WHERE "
+
   #critical section some companies lack all of above fields to be revised for update!! TODO
-  if data["საიდენტიფიკაციო კოდი"]=="" and data["პირადი ნომერი"]=="" and
-      data["სახელმწიფო რეგისტრაციის ნომერი"] == ""
-    $current_cid += 1
-    DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
+  if data["საიდენტიფიკაციო კოდი"]== nil and data["პირადი ნომერი"]== nil and
+      data["სახელმწიფო რეგისტრაციის ნომერი"] == nil
+   
+      slct = DB.prepare("SELECT * FROM company WHERE comp_name = ? AND state_reg_date = ?")
+      slct.bind_params(data["დასახელება"], data["სახელმწიფო რეგისტრაციის თარიღი"])
+      rslt = slct.execute
+      rslt.reset()
+      if rslt.next() != nil
+        rslt.reset()
+        puts "CRITICAL IF"
+        rslt.each do |row|
+          $current_cid = Integer(row[0])
+          if row[1] != data["საიდენტიფიკაციო კოდი"] or
+                 row[2] != data["პირადი ნომერი"] or
+                 row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or
+                 row[4] != data["დასახელება"] or
+                 row[5] != data["სამართლებრივი ფორმა"] or
+                 row[6] != data["სახელმწიფო რეგისტრაციის თარიღი"] or
+                 row[7] != data["სტატუსი"]
+
+               puts  row[1]+"!="+data["საიდენტიფიკაციო კოდი"]
+               puts  row[2]+"!="+data["პირადი ნომერი"]
+               puts  row[3]+"!="+data["სახელმწიფო რეგისტრაციის ნომერი"]
+               puts  row[4]+"!="+data["დასახელება"]
+               puts  row[5]+"!="+ data["სამართლებრივი ფორმა"]
+               puts  row[6]+"!="+data["სახელმწიფო რეგისტრაციის თარიღი"]
+               puts  row[7]+"!="+data["სტატუსი"]
+               puts "<<<<<<<<<<<<<<<<company ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+               puts "<<<<<<<<<<<<<<<<company UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+          else
+           puts "<<<<<<<<<<<<<<<<< SAME CRITICAL COMPANY>>>>>>>>>>>>>>>>>>>>>"
+          end
+        end
+      else
+         $current_cid = new_cid
+        DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
+        :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
+          "cid" => $current_cid,
+          "id_code"=>data["საიდენტიფიკაციო კოდი"],
+          "p_code"=>data["პირადი ნომერი"],
+          "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
+          "comp_name"=>data["დასახელება"],
+          "legal_form"=>data["სამართლებრივი ფორმა"],
+          "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
+          "status"=>data["სტატუსი"],
+          "scrap_date"=> Time.now.utc.iso8601)
+      end
+  end
+
+  if data["საიდენტიფიკაციო კოდი"] != nil
+    query_qr = query_qr + " id_code = '#{data["საიდენტიფიკაციო კოდი"]}' "
+    id_added = true
+    valid_query = true
+  end
+  if data["პირადი ნომერი"] != nil
+    if id_added == true
+      query_qr = query_qr + " OR "
+    end
+    query_qr = query_qr + " p_code = '#{data["პირადი ნომერი"]}' "
+    pcode_added = true
+    valid_query = true
+  end
+
+  if valid_query
+    statement = DB.prepare(query_qr)
+    result = statement.execute
+    if result.next() == nil
+      $current_cid = new_cid
+      DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
       :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
         "cid" => $current_cid,
         "id_code"=>data["საიდენტიფიკაციო კოდი"],
@@ -216,50 +354,8 @@ def insert_comp(data)
         "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
         "status"=>data["სტატუსი"],
         "scrap_date"=> Time.now.utc.iso8601)
-  end
-
-  if data["საიდენტიფიკაციო კოდი"] != ""
-    query_qr = query_qr + " id_code = '#{data["საიდენტიფიკაციო კოდი"]}' "
-    id_added = true
-    valid_query = true
-  end
-  if data["პირადი ნომერი"] != ""
-    if id_added == true
-      query_qr = query_qr + " OR "
-    end
-    query_qr = query_qr + " p_code = '#{data["პირადი ნომერი"]}' "
-    pcode_added = true
-    valid_query = true
-  end
-  if data["სახელმწიფო რეგისტრაციის ნომერი"] != ""
-    if pcode_added or id_added
-      query_qr = query_qr + " OR "
-    end
-    query_qr = query_qr + " state_reg_code = '#{data["სახელმწიფო რეგისტრაციის ნომერი"]}' "
-    valid_query = true
-  end
-
-  if valid_query
-    statement = DB.prepare(query_qr)
-    result = statement.execute
-    if result.next() == nil
-      max_row = DB.execute("SELECT MAX(cid) FROM company")
-      new_cid = Integer(max_row[0][0]) + 1
-      $current_cid = new_cid
-      DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
-      :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
-        "cid" => new_cid,
-        "id_code"=>data["საიდენტიფიკაციო კოდი"],
-        "p_code"=>data["პირადი ნომერი"],
-        "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
-        "comp_name"=>data["დასახელება"],
-        "legal_form"=>data["სამართლებრივი ფორმა"],
-        "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
-        "status"=>data["სტატუსი"],
-        "scrap_date"=> Time.now.utc.iso8601)
-      puts data["საიდენტიფიკაციო კოდი"]
-      puts new_cid
-      puts "<<<<<<<<<<<<<<<<<<<<<<<inserted>>>>>>>>>>>>>>>>>>>>>>>"
+      
+      puts "<<<<<<<<<<<<<<<<<<<<<<<company inserted>>>>>>>>>>>>>>>>>>>>>>>"
     else
       result.reset()
       result.each do |row|
@@ -272,23 +368,62 @@ def insert_comp(data)
              row[6] != data["სახელმწიფო რეგისტრაციის თარიღი"] or
              row[7] != data["სტატუსი"]
 
-           puts  row[1]+"!="+data["საიდენტიფიკაციო კოდი"] 
-           puts  row[2]+"!="+data["პირადი ნომერი"]
-           puts  row[3]+"!="+data["სახელმწიფო რეგისტრაციის ნომერი"]
-           puts  row[4]+"!="+data["დასახელება"]
-           puts  row[5]+"!="+ data["სამართლებრივი ფორმა"]
-           puts  row[6]+"!="+data["სახელმწიფო რეგისტრაციის თარიღი"]
-           puts  row[7]+"!="+data["სტატუსი"]
-           puts "<<<<<<<<<<<<<<<<ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-           puts "<<<<<<<<<<<<<<<<UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+           puts  row[1]
+           puts data["საიდენტიფიკაციო კოდი"]
+           puts "))___(("
+           puts  row[2]
+           puts data["პირადი ნომერი"]
+           puts "))___(("
+           puts  row[3]
+           puts data["სახელმწიფო რეგისტრაციის ნომერი"]
+           puts "))___(("
+           puts  row[4]
+           puts data["დასახელება"]
+           puts "))___(("
+           puts  row[5]
+           puts data["სამართლებრივი ფორმა"]
+           puts "))___(("
+           puts  row[6]
+           puts data["სახელმწიფო რეგისტრაციის თარიღი"]
+           puts "))___(("
+           puts  row[7]
+           puts data["სტატუსი"]
+           puts "))___(("
+           puts "<<<<<<<<<<<<<<<<company ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+           puts "<<<<<<<<<<<<<<<<company UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
          else
-           puts "<<<<<<<<<<<<<<<<<SAME SEA>>>>>>>>>>>>>>>>>>>>>>>>"
+           puts "<<<<<<<<<<<<<<<<<SAME company>>>>>>>>>>>>>>>>>>>>>>>>"
          end
       end
     end
   end
 end
   
-
+def insert_person(data_line)
+  name = data_line.split(/.*/,1).last.gsub(/\s[(][პ][\/][ნ][:]\s\d*[)].*/, '')
+  p_n = data_line.split(/.*[(პ\/ნ:]\s/).last.gsub(/[)].*/, '')
+  address = data_line.split(/.*/,1).last.gsub(/.*\d[)]\s/, '')
+  slct = DB.prepare("SELECT * FROM people WHERE personal_number = ?")
+  slct.bind_params(p_n)
+  rslt = slct.execute
+  max_row = DB.execute("SELECT MAX(pid) FROM people")
+  new_pid = Integer(max_row[0][0]) + 1
+  if rslt.next() == nil
+    DB.execute("INSERT INTO people(pid, name, address, personal_number) VALUES(:pid, :name, :address, :personal_number)",
+      "pid"=>new_pid,
+      "name"=>name,
+      "address"=>address,
+      "personal_number"=>p_n)
+      pid = new_pid
+  else
+    puts "THE P/N IS ALREADY in the DATABASE"
+    rslt.reset()
+    rslt.each do |row|
+     pid = Integer(row[0])
+    end
+  end
+  pid
+end
 
 action()
+
