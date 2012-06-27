@@ -25,6 +25,8 @@ require 'ping'
 #Business Partnership	28
 
 DB = SQLite3::Database.open "scrapper_db.db"
+DB.busy_timeout(100)
+
 BASE_URL = "https://enreg.reestri.gov.ge"
 HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phbaen4f8kpjoi54"}
 @br = Mechanize.new { |b|
@@ -38,6 +40,7 @@ HDR = {"X-Requested-With"=>"XMLHttpRequest","cookie"=>"MMR_PUBLIC=7ip3pu3gh4phba
 @gent.pluggable_parser.pdf = Mechanize::Download
 
 $current_cid
+$comp_in_db
 
 class String
   def pretty
@@ -49,6 +52,22 @@ class Array
   def pretty
     self.collect{|a| a.strip}
   end
+end
+
+def pretify(str)
+  if str==nil
+    return nil
+  end
+  while str.start_with?(",") or str.start_with?(" ") or str.start_with?("\n") or  str.start_with?("\r")
+    str[0] = ''
+  end
+  while str.end_with?(",") or str.end_with?(" ") or str.end_with?("\n") or  str.end_with?("\r")
+    str = str.chop
+  end
+  if str == ""
+    return nil
+  end
+  return str
 end
 
 #this method returns the fist page of a company, in case of lost connection it waits for connection
@@ -74,10 +93,10 @@ def fetch_pg2(cid)
 end
 
 def haskeyword(src)
-    ["ყადაღა/აკრძალვა","ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები",
+    ["ყადაღა/აკრძალვა","ხელმძღვანელობაზე", "წარმომადგენლობაზე","უფლებამოსილი" "პირები",
       "დამფუძნებლები","წილი","ყადაღა/აკრძალვა", "პარტნიორები", "საგადასახადო გირავნობა/იპოთეკის უფლება",
     "მოძრავ ნივთებსა და არამატერიალურ ქონებრივ", "მოვალეთა რეესტრი", "ინფორმაცია ლიკვიდაციის შესახებ",
-  "public.reestri.gov.ge"].each do |key_word|
+    "პროკურისტები", "სუბიექტი", "რეორგანიზაცია"].each do |key_word|
         return true if src.include?(key_word)
     end
     return false
@@ -147,9 +166,19 @@ def insert_scan(link, date, file_name)
   stm = DB.prepare("SELECT * FROM scans WHERE link_to_scan = ?")
   stm.bind_params(link)
   result = stm.execute
+  ret_val = 0
   if result.next()==nil
     max_row = DB.execute("SELECT MAX(sid) FROM scans")
     new_sid = Integer(max_row[0][0]) + 1
+    #a new scan-doc is inserted to a company that was scrapped previously
+    if $comp_in_db == true
+      alrt_bd = Hash.new
+      alrt_bd["cid"] = $current_cid
+      alrt_bd["sid"] = new_sid
+      alrt_bd["link"] = link
+      alrt_bd["fname"] = file_name
+      alert(4, alrt_bd)
+    end
     DB.execute("INSERT INTO scans(cid, sid, date, link_to_scan, file_name) VALUES(:cid, :sid, :date, :link_to_scan, :file_name)",
     "cid"=>$current_cid,
     "sid"=>new_sid,
@@ -157,22 +186,26 @@ def insert_scan(link, date, file_name)
     "link_to_scan"=>link,
     "file_name" => file_name)
     puts "Scan Inserted from company page (pg2): cid = #{$current_cid}; sid = #{new_sid}; date = #{date}; link=#{link}; file name = #{file_name}"
+    return new_sid
   else
     result.reset()
     puts "THE LINK TO THE SCAN IS ALREADY IN THE DATABASE"
     result.each do |row|
       puts "Database: cid = #{row[0]}; sid = #{row[1]}; date = #{row[2]}; link = #{row[3]}; file name = #{row[4]}"
       puts "Inserting: cid = #{$current_cid}; sid = #{new_sid}; date = #{date}; link=#{link}; file name = #{file_name}"
+      ret_val = row[0]
     end
+    return ret_val
   end
 end
 
 
 
-def pdf_parser(file)
+def pdf_parser(file, link)
+  return_val = -1
 	extract_data = Hash.new("")
 	filename = File.expand_path(file)
-
+  begin
 	PDF::Reader.open(filename) do |reader|
 	  #reader.pages.each do |page|
       txt = reader.page(1).text
@@ -182,7 +215,9 @@ def pdf_parser(file)
         #puts "word 1 = #{words[0]}word 2 = #{words[1]}"
 
         if previous_par == "იურიდიული მისამართი" and words[0]!= "ელექტრონული ფოსტა" and words[0]!= "საიდენტიფიკაციო კოდი" and words[0]!= "ფაქტობრივი მისამართი"
-          buffer = extract_data["იურიდიული მისამართი"] + words[0]
+          if extract_data["იურიდიული მისამართი"] != nil
+            buffer = extract_data["იურიდიული მისამართი"] + words[0]
+          end
           extract_data[previous_par] = buffer
           previous_par = words[0]
         else
@@ -190,66 +225,6 @@ def pdf_parser(file)
           previous_par = words[0]
         end
       end
-     line_array = Array.new
-      reader.pages.each do |page|
-        page.text.each do |line|
-        line_array.push(line)
-        #puts line
-        end
-      end
-
-      i = 0;
-      while i<line_array.length do
-         if line_array[i].include?"ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები" #leadership
-           if line_array[i+1].include? "ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები"
-            j = i+1
-           else
-             j=i
-           end
-
-           while !haskeyword(line_array[j+1]) do
-              puts line_array[j+1]
-              puts line_array[j+2]
-
-              j+=2
-           end
-            i = j
-         end
-
-         if line_array[i].include?"დამფუძნებლები" #დამფუძნებლები
-           if line_array[i+1].include?"დამფუძნებლები"
-             j = i+1
-           else
-             j = i
-           end
-
-           while !haskeyword(line_array[j+1]) do
-              puts line_array[j+1]
-              j+=1
-           end
-            i = j
-         end
-
-         if line_array[i].include?"პარტნიორები" #Partners
-           if line_array[i+1].include?"პარტნიორები"
-             j = i+2
-           else
-             j = i+1
-           end
-           if line_array[j+1].include?"წილი"
-             j = j+1
-           end
-           while !haskeyword(line_array[j+1]) do
-              puts line_array[j+1]
-              j+=1
-           end
-            i = j
-         end
-         i+=1
-      end
-
-    end
-
 #      puts "Application Number = #{extract_data["განაცხადის ნომერი"]}"
 #      puts "b_number= #{extract_data["განაცხადის რეგისტრაციის ნომერი"]}"
 #      puts "Date of preparation of an extract = #{extract_data["ამონაწერის მომზადების თარიღი"]}"
@@ -268,7 +243,7 @@ def pdf_parser(file)
       if result.next() == nil
           max_eid = DB.execute("SELECT MAX(eid) FROM extracts")
           new_eid = Integer(max_eid[0][0]) + 1
-
+          ext_id = new_eid
           DB.execute("INSERT INTO extracts(cid, eid, reg_number, application_num, prep_date, address, email, reg_authority, tax_inspection)
           VALUES(:cid, :eid, :reg_number, :application_num, :prep_date, :address, :email, :reg_authority, :tax_inspection)",
           "cid"=>$current_cid,
@@ -280,11 +255,23 @@ def pdf_parser(file)
           "email"=>extract_data["ელექტრონული ფოსტა"],
           "reg_authority"=>extract_data["მარეგისტრირებელი ორგანო"],
           "tax_inspection"=>extract_data["საგადასახადო ინსპექცია"])
+          return_val = new_eid
+
+          #A new extract is inserted to a company that was previously scrapped
+          if $comp_in_db == true
+            alrt_bd = Hash.new
+            alrt_bd["cid"] = $current_cid
+            alrt_bd["eid"] = new_eid
+            alrt_bd["link"]= link
+            alert(3, alrt_bd)
+          end
        else
         puts "The Extract is already in the database."
         result.reset()
         result.each do |row|
-            puts row
+            #puts row
+            ext_id = row[1]
+            return_val = row[1]
             if row[0] != $current_cid or
                 row[2] != extract_data["განაცხადის რეგისტრაციის ნომერი"] or
                 row[3] != extract_data["განაცხადის ნომერი"] or
@@ -308,12 +295,148 @@ def pdf_parser(file)
             end
           end
         end
+
+      #handling people in the extract
+      line_array = Array.new
+      reader.pages.each do |page|
+        page.text.each do |line|
+        line_array.push(line)
+        #puts line
+        end
+      end
+
+      i = 0;
+      while i<line_array.length do
+         if line_array[i].include?"ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები" #leadership
+           if line_array[i+1].include? "ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები"
+            j = i+1
+           else
+             j=i
+           end
+
+           while !haskeyword(line_array[j+1]) do
+               if line_array[j+1].include?"public.reestri.gov.ge"
+                 j+=1
+                 next
+               end
+               first = line_array[j+1]
+               fields = first.split(",", 2)
+               puts fields
+               p_n = pretify(fields[0])
+               name = pretify(fields[1])
+               relation = pretify(line_array[j+2])
+               if relation == nil
+                 relation = "Person on the board"
+               end
+               puts "leader=> pn:#{p_n} name:#{name} rel:#{relation}"
+               if p_n != nil
+                extract_person(p_n, name, relation, ext_id)
+               end
+              j+=2
+           end
+            i = j
+         end
+
+
+         if line_array[i].include?"დამფუძნებლები" #Founders
+           if line_array[i+1].include?"დამფუძნებლები"
+             j = i+1
+           else
+             j = i
+           end
+
+           while !haskeyword(line_array[j+1]) do
+              if line_array[j+1].include?"public.reestri.gov.ge"
+                 j+=1
+                 next
+              end
+              first = line_array[j+1]
+              fields = first.split(",", 2)
+              p_n = pretify(fields[0])
+              name = pretify(fields[1])
+              puts "founder=> pn:#{p_n} name:#{name} rel: Founder"
+              if p_n != nil
+                extract_person(p_n, name, "Founder", ext_id)
+              end
+              j+=1
+           end
+            i = j
+         end
+
+
+         if line_array[i].include?"პარტნიორებიპარტნიორები" #Partners
+           if line_array[i+1].include?"პარტნიორებიპარტნიორები"
+             j = i+2
+           else
+             j = i+1
+           end
+           if line_array[j+1].include?"წილი"
+             j = j+1
+           end
+           while !haskeyword(line_array[j+1]) do
+              if line_array[j+1].include?"public.reestri.gov.ge"
+                 j+=1
+                 next
+              end
+              first = line_array[j+1]
+              fields = first.split(",", 3)
+              p_n = pretify(fields[0])
+              name = pretify(fields[1])
+              puts "partner=> pn:#{p_n} name:#{name} rel: Partner"
+              if p_n != nil
+                extract_person(p_n, name, "Partner", ext_id)
+              end
+              j+=1
+           end
+            i = j
+         end
+
+
+         if line_array[i].include?"დირექტორები" #directors
+           if line_array[i+1].include?"დირექტორები"
+             j = i+2
+           else
+             j = i+1
+           end
+           if line_array[j+1].include?"სუბიექტი"
+             j = j+1
+           end
+           while !haskeyword(line_array[j+1]) do
+               if line_array[j+1].include?"public.reestri.gov.ge"
+                 j+=1
+                 next
+               end
+               first = line_array[j+1]
+               fields = first.split(",", 2)
+               #puts fields
+               p_n = pretify(fields[0])
+               name = pretify(fields[1])
+               relation = pretify(line_array[j+2])
+               if relation == nil
+                 relation = "Director"
+               end
+               puts "Director=> pn:#{p_n} name:#{name} rel:#{relation}"
+               if p_n != nil
+                extract_person(p_n, name, relation, ext_id)
+               end
+              j+=2
+           end
+            i = j
+         end
+         i+=1
+      end
     end
+  rescue Exception => exc
+    puts "ERROR: #{exc.message} in get extract!"
+    return return_val
+  end
+    return return_val
+ end
 
 
 #this method saves the extract once it is called with appropriate id's,
 #calls pdf_parser to read/parse the extract and then removes the file
-def get_extract(scandoc_id, app_id)
+def get_extract(scandoc_id, app_id, link)
   ext_param = {"c"=>"mortgage","m"=>"get_output_by_id", "scandoc_id"=>scandoc_id, "app_id"=>app_id}
   begin
     Timeout::timeout(5) {
@@ -327,19 +450,23 @@ def get_extract(scandoc_id, app_id)
       puts "waiting for ping google.com"
       sleep 2
     end
-    return get_extract(scandoc_id, app_id)
+    return get_extract(scandoc_id, app_id, link)
   end
   if  FileTest.exists?("./enreg.reestri.gov.ge/temp_extract.pdf") == false
     puts "file does not exists"
-    return get_extract(scandoc_id, app_id)
+    return get_extract(scandoc_id, app_id, link)
   end
-  pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf")
+  val = pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf", link)
   File.delete("./enreg.reestri.gov.ge/temp_extract.pdf")
+  return val
 end
 
 
+
+
+
 def action()
-  params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"27"}
+  params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"2"}
   pg = nil
   begin
     begin
@@ -399,7 +526,14 @@ def get_add(id)
   pg3 = nil
   begin
     pg3 = fetch_pg3(id)
-  end while pg3 == nil 
+  end while pg3 == nil
+
+  extract_list = Array.new
+  scan_list = Array.new
+  app_list = Array.new
+  page_list = Array.new
+  pg_prsn_ls = Array.new
+
   #Getting all the extracts in case it is a djvu file save it into the table of scandocs
    Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'მომზადებული დოკუმენტები']]/tr").each{|tr|
     rows = tr.xpath('td')
@@ -431,16 +565,30 @@ def get_add(id)
         "link_to_scan"=>link,
         "file_name"=>fname)
         puts "Inserted: cid = #{$current_cid}; sid = #{new_sid}; date = #{extract_date}; link=#{link}; file name = #{fname}"
+        scan_list.push(new_sid)
+        if $comp_in_db == true
+          if $comp_in_db == true
+            alrt_bd = Hash.new
+            alrt_bd["cid"] = $current_cid
+            alrt_bd["sid"] = new_sid
+            alrt_bd["link"] = link
+            alrt_bd["fname"] = fname
+            alert(4, alrt_bd)
+          end
+        end
+
       else
         result.reset()
         puts "THE LINK TO THE SCAN IS ALREADY IN THE DATABASE"
         result.each do |row|
+          scan_list.push(row[1])
           puts "Database: cid = #{row[0]}; sid = #{row[1]}; date = #{row[2]}; link = #{row[3]}; file name = #{row[4]}"
           puts "Inserting: cid = #{$current_cid}; sid = #{new_sid}; date = #{extract_date}; link=#{link}; file name = #{fname}"
         end
       end
     else
-      get_extract(scandoc_id, app_id)
+      eid = get_extract(scandoc_id, app_id, link)
+      extract_list.push(eid)
     end
    }
 
@@ -463,16 +611,28 @@ def get_add(id)
    }
    #the id of the current inserted page
    page_id = insert_page(page_data)
+   page_list.push(page_id)
 
    #checking for people whose name is written in corresponding entries
    if page_data["განმცხადებელი"] != nil
      pid = insert_person(page_data["განმცხადებელი"])
+     pg_prsn_ls.push({pid, "განმცხადებელი"})
+
      begin
         DB.execute("INSERT INTO page_to_person(cid, page_id, pid, role) VALUES(:cid, :page_id, :pid, :role)",
        "cid"=>$current_cid,
        "page_id"=>page_id,
        "pid"=>pid,
        "role"=>"განმცხადებელი")
+
+       #A new person has appeared on a comp data that was scrapped previously
+       if $comp_in_db == true
+        alrt_bd = Hash.new
+        alrt_bd["cid"] = $current_cid
+        alrt_bd["pid"] = pid
+        alrt_bd["role"] = "განმცხადებელი"
+        alert(1, alrt_bd)
+       end
        puts "A person pid = #{pid} linked to company cid = #{$current_cid} as განმცხადებელი (Applicant)"
      rescue SQLite3::Exception => e
         puts "Exception occured"
@@ -482,12 +642,22 @@ def get_add(id)
    
   if page_data["წარმომადგენელი"] != nil
      pid = insert_person(page_data["წარმომადგენელი"])
+     pg_prsn_ls.push({pid,"წარმომადგენელი"})
      begin
         DB.execute("INSERT INTO page_to_person(cid, page_id, pid, role) VALUES(:cid, :page_id, :pid, :role)",
        "cid"=>$current_cid,
        "page_id"=>page_id,
        "pid"=>pid,
-       "role"=>"წარმომადგენელი"     )
+       "role"=>"წარმომადგენელი")
+
+       #A new person has appeared on a comp data that was scrapped previously
+       if $comp_in_db == true
+        alrt_bd = Hash.new
+        alrt_bd["cid"] = $current_cid
+        alrt_bd["pid"] = pid
+        alrt_bd["role"] = "წარმომადგენელი"
+        alert(1, alrt_bd)
+       end
         puts "A person pid = #{pid} linked to company cid = #{$current_cid} as წარმომადგენელი (Representative)"
      rescue SQLite3::Exception => e
         puts "Exception occured"
@@ -497,12 +667,22 @@ def get_add(id)
    
    if page_data["წარმომდგენი"] != nil
      pid = insert_person(page_data["წარმომდგენი"])
+     pg_prsn_ls.push({pid, "წარმომდგენი"})
      begin
         DB.execute("INSERT INTO page_to_person(cid, page_id, pid, role) VALUES(:cid, :page_id, :pid, :role)",
        "cid"=>$current_cid,
        "page_id"=>page_id,
        "pid"=>pid,
-       "role"=>"წარმომდგენი"     )
+       "role"=>"წარმომდგენი")
+
+       #A new person has appeared on a comp data that was scrapped previously
+       if $comp_in_db == true
+        alrt_bd = Hash.new
+        alrt_bd["cid"] = $current_cid
+        alrt_bd["pid"] = pid
+        alrt_bd["role"] = "წარმომდგენი"
+        alert(1, alrt_bd)
+       end
         puts "A person pid = #{pid} linked to company cid = #{$current_cid} as წარმომდგენი (Presenting)"
      rescue SQLite3::Exception => e
         puts "Exception occured"
@@ -518,7 +698,8 @@ def get_add(id)
     s_fname = scols[2].xpath("./a").text()
     #puts "INFO ADD PAGE comp = #{$current_cid} link = #{s_link} fname = #{s_fname}; date = #{s_date}"
     if s_link != nil
-      insert_scan(s_link, nil, s_fname)
+      scan_id = insert_scan(s_link, nil, s_fname)
+      scan_list.push(scan_id)
     end
   }
 
@@ -532,6 +713,7 @@ def get_add(id)
     #puts "INFO App/status PAGE comp = #{$current_cid} link = #{a_link} fname = #{a_fname}; date = #{a_date}; status = #{a_status}"
 
     if a_link != nil
+      app_list.push(a_link)
       stm = DB.prepare("SELECT * FROM app_status WHERE link = ?")
       stm.bind_params(a_link)
       result = stm.execute
@@ -547,7 +729,12 @@ def get_add(id)
         "status"=>a_status,
         "link"=>a_link,
         "scrap_date"=>Time.now.utc.iso8601)
-
+        if $comp_in_db == true
+          alrt_bd = Hash.new
+          alrt_bd["cid"] = $current_cid
+          alrt_bd["aid"] = new_aid
+          alert(2, alrt_bd)
+        end
       else
         puts "The application already in the database!"
         result.reset()
@@ -562,14 +749,14 @@ def get_add(id)
             puts "File Name: DB=> #{row[3]} || scrapped=> #{a_fname}"
             puts "Status: DB=> #{row[4]} || scrapped=> #{a_status}"
           else
-            puts "Same Application"
+            puts "Same Acapplication"
           end
         end
       end
     end
   }
   
-
+ #here the field that are in database but were not encountered during subsequent scraps will be handled
 end
 
 
@@ -577,10 +764,16 @@ end
 def insert_page(page_data)
   max_pg_id = DB.execute("SELECT MAX(page_id) FROM pages")
   new_page_id = Integer(max_pg_id[0][0]) + 1
-
    stm = DB.prepare("SELECT * FROM PAGES WHERE B_number = '#{page_data["b_number"]}'")
    result = stm.execute
    if result.next() == nil
+     #issue an alert if the information is added to a company that was scrapped before
+     if $comp_in_db == true
+       alrt_bd = Hash.new
+       alrt_bd["cid"] = $current_cid
+       alrt_bd["page_id"] = new_page_id
+       alert(5, alrt_bd)
+     end
      DB.execute("INSERT INTO pages(cid, page_id, property_num, B_number, entity_name,
           legal_form, reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes)
           VALUES (:cid, :page_id, :property_num, :B_number, :entity_name, :legal_form,
@@ -673,6 +866,7 @@ def insert_comp(data)
       if rslt.next() != nil
         rslt.reset()
         puts "The company is in the database, verifying the columns"
+        $comp_in_db = true
         rslt.each do |row|
           $current_cid = Integer(row[0])
           if row[1] != data["საიდენტიფიკაციო კოდი"] or
@@ -698,6 +892,7 @@ def insert_comp(data)
         end
       else
         $current_cid = new_cid
+        $comp_in_db = false
         DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
         :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
           "cid" => $current_cid,
@@ -742,6 +937,7 @@ def insert_comp(data)
     result = statement.execute
     if result.next() == nil
       $current_cid = new_cid
+      $comp_in_db = false
       DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
       :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
         "cid" => $current_cid,
@@ -761,6 +957,7 @@ def insert_comp(data)
       puts "Scrape date: #{Time.now.utc.iso8601}"
       puts "<----------------------------------------------------------------------->"
     else
+      $comp_in_db = true
       result.reset()
       result.each do |row|
         $current_cid = Integer(row[0])
@@ -822,12 +1019,64 @@ def insert_person(data_line)
      db_name = row[1]
      db_address = row[2]
      db_pn = row[3]
+     if db_address == nil
+       DB.execute("UPDATE people SET address= :address WHERE personal_number = :pn",
+       "address"=> address,
+       "pn"=>p_n)
+       puts "THE ADDRESS OF THE PERSON IS UPDATED TO: #{address}"
+     end
      puts "Inserting: PID=#{new_pid}; name=#{name}; P/N = #{p_n}; address=#{address}"
      puts "In the DB: PID=#{pid}; name=#{db_name}; P/N = #{db_pn}; address=#{db_address}"
+
     end
   end
  return pid
 end
+
+def extract_person(pn, name, relation, ext_id)
+  slct = DB.prepare("SELECT * FROM people WHERE personal_number = ?")
+  slct.bind_params(pn)
+  rslt = slct.execute
+  if rslt.next() == nil
+    max_row = DB.execute("SELECT MAX(pid) FROM people")
+    new_pid = Integer(max_row[0][0]) + 1
+    DB.execute("INSERT INTO people(pid, name, personal_number) VALUES(:pid, :name, :personal_number)",
+      "pid"=>new_pid,
+      "name"=>name,
+      "personal_number"=>pn)
+      pid = new_pid
+      puts "A person inserted to DB from an extract: PID=#{new_pid}; name=#{name}; P/N = #{pn};"
+  else
+    puts "THE P/N FROM AN EXTRACT IS ALREADY in the DATABASE "
+    rslt.reset()
+    rslt.each do |row|
+     pid = Integer(row[0])
+     db_name = row[1]
+     db_pn = row[3]
+     puts "Inserting: PID=#{new_pid}; name=#{name}; P/N = #{pn};"
+     puts "In the DB: PID=#{pid}; name=#{db_name}; P/N = #{db_pn};"
+    end
+  end
+
+  begin
+    DB.execute("INSERT INTO person_to_extract(cid, eid, pid, role) VAlUES(:cid, :eid, :pid, :role)",
+      "cid"=>$current_cid,
+      "eid"=>ext_id,
+      "pid"=>pid,
+      "role"=>relation)
+    if $comp_in_db == true
+      alrt_bd = Hash.new
+      alrt_bd["cid"] = $current_cid
+      alrt_bd["eid"] = ext_id
+      alrt_bd["pid"] = pid
+      alert(6, alrt_bd)
+    end
+  rescue SQLite3::Exception => e
+      puts "Exception occured"
+      puts e
+   end
+end
+
 
 def get_application(link)
   doc_id = CGI.parse(link)['doc_id']
@@ -858,6 +1107,12 @@ def get_application(link)
       get_application(link)
    end
    puts app_page.body
+end
+
+def alert(code, body)
+  puts "<<<<<<<<<<<<<<<<<<<<<<<ALERT ALERT ALERT>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  puts code
+  puts body
 end
 
 action()
