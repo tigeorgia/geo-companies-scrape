@@ -119,7 +119,7 @@ def scrape(data)
         cid = attributes(td[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
         link = BASE_URL + "/main.php?c=app&m=show_legal_person&legal_code_id=#{attributes(td[0].xpath('./a'),'onclick').split('(').last.gsub(')','')}"
         records["link"] = link
-       
+
         begin
          pg2 = fetch_pg2(cid)
         end while pg2==nil
@@ -174,7 +174,8 @@ def scrape(data)
        eid = Integer(row[1])
        if $extract_list.include?(eid) == false
          puts "TRACE: An extract encountered ID:#{row[1]} that is no longer in the registry"
-         DB.execute("INSERT INTO extracts_trace(cid, eid, scrap_date, reg_number, application_num, prep_date, address, email, reg_authority, tax_inspection, link, insert_date)
+         begin
+          DB.execute("INSERT INTO extracts_trace(cid, eid, scrap_date, reg_number, application_num, prep_date, address, email, reg_authority, tax_inspection, link, insert_date)
           VALUES(:cid, :eid, :scrap_date, :reg_number, :application_num, :prep_date, :address, :email, :reg_authority, :tax_inspection, :link, :insert_date)",
           "cid"=>row[0],
           "eid"=>row[1],
@@ -188,6 +189,10 @@ def scrape(data)
           "tax_inspection"=>row[8],
           "link"=>row[13],
           "insert_date"=>Time.now.utc.iso8601)
+         rescue SQLite3::Exception => e
+          puts "Exception occured"
+          puts e
+         end
        end
      end
 
@@ -199,7 +204,8 @@ def scrape(data)
        sid = Integer(row[1])
        if $scan_list.include?(sid) == false
          puts "TRACE: A scanned document ID:#{row[1]} is encountered that is no longer in the registry"
-         DB.execute("INSERT INTO scans_trace(cid, sid, scrap_date, date, link_to_scan, file_name, text, insert_date)
+         begin
+          DB.execute("INSERT INTO scans_trace(cid, sid, scrap_date, date, link_to_scan, file_name, text, insert_date)
           VALUES(:cid, :sid, :scrap_date, :date, :link_to_scan, :file_name, :text, :insert_date)",
           "cid"=>row[0],
           "sid"=>row[1],
@@ -209,6 +215,10 @@ def scrape(data)
           "file_name"=>row[4],
           "text"=>row[5],
           "insert_date"=>Time.now.utc.iso8601)
+          rescue SQLite3::Exception => e
+            puts "Exception occured"
+            puts e
+          end
        end
      end
 
@@ -220,6 +230,7 @@ def scrape(data)
        link = row[5]
        if $app_list.include?(link) == false
          puts "TRACE: An application is encountered that is no longer in the registry"
+         begin
          DB.execute("INSERT INTO app_status_trace(aid, cid, scrap_date, date, file_name, status, link, text, insert_date)
           VALUES(:aid, :cid, :scrap_date, :date, :file_name, :status, :link, :text, :insert_date)",
           "aid"=>row[0],
@@ -231,6 +242,10 @@ def scrape(data)
           "link"=>row[5],
           "text"=>row[6],
           "insert_date"=>Time.now.utc.iso8601)
+        rescue SQLite3::Exception => e
+          puts "Exception occured"
+          puts e
+        end
        end
      end
   #  page_list
@@ -241,28 +256,33 @@ def scrape(data)
        page_id = Integer(row[1])
        if $page_list.include?(page_id) == false
          puts "TRACE: A page encountered ID:#{row[1]} that is no longer on the registry website"
-         DB.execute("INSERT INTO pages_trace(cid, page_id, scrap_date, property_num, B_number, entity_name, legal_form,
-                      reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes, insert_date)
-          VALUES(:cid, :page_id, :scrap_date, :property_num, :B_number, :entity_name, :legal_form,
-                      :reorg_type, :number_of, :replacement_info, :attached_docs, :backed_docs, :notes, :insert_date)",
-          "cid"=>row[0],
-          "page_id"=>row[1],
-          "scrap_date"=>row[12],
-          "property_num"=>row[2],
-          "B_number"=>row[3],
-          "entity_name"=>row[4],
-          "legal_form"=>row[5],
-          "reorg_type"=>row[6],
-          "number_of"=>row[7],
-          "replacement_info"=>row[8],
-          "attached_docs"=>row[9],
-          "backed_docs"=>row[12],
-          "notes"=>row[11],
-          "insert_date"=>Time.now.utc.iso8601)
+         begin
+           DB.execute("INSERT INTO pages_trace(cid, page_id, scrap_date, property_num, B_number, entity_name, legal_form,
+                        reorg_type, number_of, replacement_info, attached_docs, backed_docs, notes, insert_date)
+            VALUES(:cid, :page_id, :scrap_date, :property_num, :B_number, :entity_name, :legal_form,
+                        :reorg_type, :number_of, :replacement_info, :attached_docs, :backed_docs, :notes, :insert_date)",
+            "cid"=>row[0],
+            "page_id"=>row[1],
+            "scrap_date"=>row[12],
+            "property_num"=>row[2],
+            "B_number"=>row[3],
+            "entity_name"=>row[4],
+            "legal_form"=>row[5],
+            "reorg_type"=>row[6],
+            "number_of"=>row[7],
+            "replacement_info"=>row[8],
+            "attached_docs"=>row[9],
+            "backed_docs"=>row[12],
+            "notes"=>row[11],
+            "insert_date"=>Time.now.utc.iso8601)
+          rescue SQLite3::Exception => e
+            puts "Exception occured"
+            puts e
+         end
        end
      end
    end
-   
+
       $extract_list.clear
       $scan_list.clear
       $app_list.clear
@@ -290,10 +310,15 @@ def insert_scan(link, date, file_name)
       alrt_bd["link"] = link
       alrt_bd["fname"] = file_name
       alert(4, alrt_bd)
+       begin
        DB.execute("INSERT INTO scans_update(cid, sid, insert_date) VALUES(:cid, :sid, :insert_date)",
          "cid"=>$current_cid,
          "sid"=>new_sid,
          "insert_date"=>Time.now.utc.iso8601)
+       rescue SQLite3::Exception => e
+        puts "Exception occured"
+        puts e
+       end
     end
 
     DB.execute("INSERT INTO scans(cid, sid, date, link_to_scan, file_name, scrap_date) VALUES(:cid, :sid, :date, :link_to_scan, :file_name, :scrap_date)",
@@ -404,16 +429,24 @@ def pdf_parser(file, link)
                 row[6] != extract_data["ელექტრონული ფოსტა"] or
                 row[7] != extract_data["მარეგისტრირებელი ორგანო"] or
                 row[8] != extract_data["საგადასახადო ინსპექცია"]
+              msg = "The extract is eiter linked to several companies or was modified since the last scrape:\n"
+                stm = DB.prepare("SELECT * FROM company WHERE cid = ?")
+                 stm.bind_params(row[0])
+                 result = stm.execute
+                 result.each do |line|
+                  msg += "The extract of company name=#{line[4]} id=#{line[1]}, pcode=#{line[2]}\n"
+                  msg += "cid :> #{row[0]} != #{$current_cid}\n"
+                  msg += "reg_number :> #{row[2]} != #{extract_data["განაცხადის რეგისტრაციის ნომერი"]}\n"
+                  msg += "appnum :> #{row[3]} != #{extract_data["განაცხადის ნომერი"]}\n"
+                  msg += "prep_date :> #{row[4]} != #{extract_data["ამონაწერის მომზადების თარიღი"]}\n"
+                  msg += "address #{row[5]} != #{extract_data["იურიდიული მისამართი"]}\n"
+                  msg += "email :> #{row[6]} != #{extract_data["ელექტრონული ფოსტა"]}\n"
+                  msg += "autority #{row[7]} != #{extract_data["მარეგისტრირებელი ორგანო"]}\n"
+                  msg += " IRA :> #{row[8]} != #{extract_data["საგადასახადო ინსპექცია"]}\n"
+                 end
+                  puts "ALERT UPDATE EXTRACT!"
+                alert(7, msg)
 
-                puts "cid :> #{row[0]} != #{$current_cid}"
-                puts "reg_number :> #{row[2]} != #{extract_data["განაცხადის რეგისტრაციის ნომერი"]}"
-                puts "appnum :> #{row[3]} != #{extract_data["განაცხადის ნომერი"]}"
-                puts "prep_date :> #{row[4]} != #{extract_data["ამონაწერის მომზადების თარიღი"]}"
-                puts "address #{row[5]} != #{extract_data["იურიდიული მისამართი"]}"
-                puts "email :> #{row[6]} != #{extract_data["ელექტრონული ფოსტა"]}"
-                puts "autority #{row[7]} != #{extract_data["მარეგისტრირებელი ორგანო"]}"
-                puts " IRA :> #{row[8]} != #{extract_data["საგადასახადო ინსპექცია"]}"
-                puts "ALERT UPDATE EXTRACT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             else
                 puts "The same extract."
             end
@@ -579,46 +612,16 @@ def get_extract(scandoc_id, app_id, link)
     return get_extract(scandoc_id, app_id, link)
   end
   val = pdf_parser("./enreg.reestri.gov.ge/temp_extract.pdf", link)
-  File.delete("./enreg.reestri.gov.ge/temp_extract.pdf")
+  begin
+    File.delete("./enreg.reestri.gov.ge/temp_extract.pdf")
+  rescue Exception => exc
+    puts "ERROR: #{exc.message} in get extract!"
+    return val
+  end
   #the eid of the inserted extract
   return val
 end
 
-
-
-
-
-def action()
-  params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>"3"}
-  pg = nil
-  begin
-    begin
-      begin
-        Timeout::timeout(5) {
-          pg = @br.post(BASE_URL + "/main.php",params,HDR)
-        }
-      rescue Timeout::Error
-        puts 'Fetching pg1 took too long, trying again...'
-        begin
-          break if Ping.pingecho("google.com",10,80)
-          puts "waiting for ping google.com"
-          sleep 2
-        end while(true)
-        next
-      end
-    rescue Exception => exc
-      puts "ERROR: #{exc.message} in action() pg1!\nTrying again in 5 seconds."
-      sleep 5
-      next
-    end
-
-    scrape(pg.body)
-    next_pg = attributes(Nokogiri::HTML(pg.body).xpath(".//td/a[img[contains(@src,'next.png')]]"),"onclick").scan(/legal_person_paginate\((\d+)\)/).flatten.first
-    break if next_pg.nil?
-    params = {"c"=>"search","m"=>"find_legal_persons","p"=>next_pg}
-    sleep 0.25
-  end while(true)
-end
 
 
 #this method returns the child page of an add of a company, in case of lost connection it waits for reconnection
@@ -705,7 +708,7 @@ def get_add(id)
         puts e
      end
    end
-   
+
   if page_data["წარმომადგენელი"] != nil
      pid = insert_person(page_data["წარმომადგენელი"])
      $pg_prsn_ls.push({pid,"წარმომადგენელი"})
@@ -737,7 +740,7 @@ def get_add(id)
         puts e
      end
    end
-   
+
    if page_data["წარმომდგენი"] != nil
      pid = insert_person(page_data["წარმომდგენი"])
      $pg_prsn_ls.push({pid, "წარმომდგენი"})
@@ -856,11 +859,19 @@ def get_add(id)
               row[2] != a_date or
               row[3] != a_fname or
               row[4] != a_status
-            puts "Application is distinct!"
-            puts "CID: DB=> #{row[1]} || scrapped=> #{$current_cid}"
-            puts "Application Date: DB=> #{row[2]} || scrapped=> #{a_date}"
-            puts "File Name: DB=> #{row[3]} || scrapped=> #{a_fname}"
-            puts "Status: DB=> #{row[4]} || scrapped=> #{a_status}"
+              msg = "The application is either linked to several companies or have been modified since the last scrape:\n"
+              stm = DB.prepare("SELECT * FROM company WHERE cid = ?")
+                 stm.bind_params(row[1])
+                 result = stm.execute
+                 result.each do |line|
+                    msg += "The application of company name=#{line[4]} id=#{line[1]}, pcode=#{line[2]}\n"
+                    msg += "Application is distinct!\n"
+                    msg += "CID: DB=> #{row[1]} || scrapped=> #{$current_cid}\n"
+                    msg += "Application Date: DB=> #{row[2]} || scrapped=> #{a_date}\n"
+                    msg += "File Name: DB=> #{row[3]} || scrapped=> #{a_fname}\n"
+                    msg += "Status: DB=> #{row[4]} || scrapped=> #{a_status}\n"
+                    alert(8, msg)
+                 end
           else
             puts "Same Acapplication"
           end
@@ -961,7 +972,7 @@ def get_add(id)
        end
      end
   end
-  
+
 end
 
 
@@ -1017,38 +1028,26 @@ def insert_page(page_data)
               row[10] != page_data["გასაცემი დოკუმენტები"] or
               row[11] != page_data["შენიშვნა"]
 
-        puts "CID"
-        puts row[0]
-        puts $current_cid
-        puts "--------------------------------"
-        puts row[2]+"!="+ page_data["property_num"]
-        puts row[3]+"!="+ page_data["b_number"]
-
-        puts row[4]
-        puts page_data["სუბიექტის დასახელება"]
-        puts "--------------------------------"
-        puts row[5]
-        puts page_data["სამართლებრივი ფორმა"]
-        puts "--------------------------------"
-        puts row[6]
-        puts page_data["რეორგანიზაციის ტიპი"]
-        puts "--------------------------------"
-        puts row[7]
-        puts page_data["რაოდენობა"]
-        puts "--------------------------------"
-        puts row[8]
-        puts page_data["შესაცვლელი რეკვიზიტი:"]
-        puts "--------------------------------"
-        puts row[9]
-        puts page_data["თანდართული დოკუმენტაცია"]
-        puts "--------------------------------"
-        puts row[10]
-        puts page_data["გასაცემი დოკუმენტები"]
-        puts "--------------------------------"
-        puts row[11]
-        puts page_data["შენიშვნა"]
-        puts "<<<<<<<<<<<<<<<<page ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-        puts "<<<<<<<<<<<<<<<<page UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+          msg = "A page is either is linked to several companies or modified since the last scrape\n"
+          stm = DB.prepare("SELECT * FROM company WHERE cid = ?")
+                 stm.bind_params(row[0])
+                 result = stm.execute
+                 result.each do |line|
+                    msg += "The page of company name=#{line[4]} id=#{line[1]}, pcode=#{line[2]}\n"
+                    msg += "cid :> #{row[0]} != #{$current_cid}\n"
+                    msg +=  "property_num :> #{row[2]} != #{page_data["property_num"]}\n"
+                    msg += "b_number :> #{row[3]} != #{page_data["b_number"]}\n"
+                    msg += "Entity name :> #{row[4]} != #{page_data["სუბიექტის დასახელება"]}\n"
+                    msg += "Legal form :> #{row[5]} != #{page_data["სამართლებრივი ფორმა"]}\n"
+                    msg += "reorg_type :> #{row[6]} != #{page_data["რეორგანიზაციის ტიპი"]}\n"
+                    msg += "number of :> #{row[7]} != #{page_data["რაოდენობა"]}\n"
+                    msg += "Replacement info :> #{row[8]} != #{page_data["შესაცვლელი რეკვიზიტი:"]}\n"
+                    msg += "Attached docs :> #{row[9]} != #{page_data["თანდართული დოკუმენტაცია"]}\n"
+                    msg += "Backed_docs :> #{row[10]} != #{page_data["გასაცემი დოკუმენტები"]}\n"
+                    msg += "Notes :> #{row[11]} != #{page_data["შენიშვნა"]}\n"
+                    alert(9, msg)
+                 end
+            puts "<<<<<<<<<<<<<<<<page UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
         else
           puts "SAME PAGE ----------------------------------------------------->"
         end
@@ -1084,20 +1083,34 @@ def insert_comp(data)
                  row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or
                  row[4] != data["დასახელება"] or
                  row[5] != data["სამართლებრივი ფორმა"] or
-                 row[6] != data["სახელმწიფო რეგისტრაციის თარიღი"] or
-                 row[7] != data["სტატუსი"]
-
-               puts  "Identification Code: DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}"
-               puts  "P number: DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}"
-               puts  "State registration number: DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
-               puts  "Name: DB=> #{row[4]} || scrapped=> #{data["დასახელება"]}"
-               puts  "Legal form: DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}"
-               puts  "State reg date: DB=>#{row[6]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}"
-               puts  "Satus: DB=> #{row[7]} || scrapped=> #{data["სტატუსი"]}"
+                 row[7] != data["სახელმწიფო რეგისტრაციის თარიღი"] or
+                 row[8] != data["სტატუსი"]
+                 msg = "Company info with missing id numbers has been modified since the last scrape\n"
+                 stm = DB.prepare("SELECT * FROM company WHERE cid = ?")
+                   stm.bind_params(row[0])
+                   result = stm.execute
+                   result.each do |line|
+                     msg +=  "Identification Code: DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}\n"
+                     msg +=  "P number: DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}\n"
+                     msg +=  "State registration number: DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}\n"
+                     msg +=  "Name: DB=> #{row[4]} || scrapped=> #{data["დასახელება"]}\n"
+                     msg +=  "Legal form: DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}\n"
+                     msg +=  "State reg date: DB=>#{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}\n"
+                     msg +=  "Satus: DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}\n"
+                     alert(10, msg)
+                   end
                puts "<<<<<<<<<<<<<<<<critical company ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-               puts "<<<<<<<<<<<<<<<<critical company UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
           else
            puts "<<<<<<<<<<<<<<<<< SAME CRITICAL COMPANY>>>>>>>>>>>>>>>>>>>>>"
+           puts "CID DB => #{row[0]}"
+           puts  "Identification Code: DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}"
+           puts  "P number: DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}"
+           puts  "State registration number: DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
+           puts  "Name: DB=>#{row[4]} || scrapped=> #{data["დასახელება"]}"
+           puts  "Legal Form:  DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}"
+           puts  "State registration date: DB=> #{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}"
+           puts  "Status: DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}"
+
           end
         end
       else
@@ -1159,7 +1172,7 @@ def insert_comp(data)
         "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
         "status"=>data["სტატუსი"],
         "scrap_date"=> Time.now.utc.iso8601)
-      
+
       puts "<--------------------------A company inserted--------------------------->"
       puts "CID = #{$current_cid}; ID=#{data["საიდენტიფიკაციო კოდი"]}; P_code=#{data["პირადი ნომერი"]}; State_reg_code=#{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
       puts "Company name: #{data["დასახელება"]}"
@@ -1176,27 +1189,40 @@ def insert_comp(data)
              row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or #state registration number
              row[4] != data["დასახელება"] or #name
              row[5] != data["სამართლებრივი ფორმა"] or #Legal Form
-             row[6] != data["სახელმწიფო რეგისტრაციის თარიღი"] or #State registration date
-             row[7] != data["სტატუსი"] #status
+             row[7] != data["სახელმწიფო რეგისტრაციის თარიღი"] or #State registration date
+             row[8] != data["სტატუსი"] #status
+             msg = "Company info with missing id numbers has been modified since the last scrape\n"
+                 stm = DB.prepare("SELECT * FROM company WHERE cid = ?")
+                   stm.bind_params(row[0])
+                   result = stm.execute
+                   result.each do |line|
+                     msg +=  "Identification Code: DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}\n"
+                     msg +=  "P number: DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}\n"
+                     msg +=  "State registration number: DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}\n"
+                     msg +=  "Name: DB=>#{row[4]} || scrapped=> #{data["დასახელება"]}\n"
+                     msg +=  "Legal Form:  DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}\n"
+                     msg +=  "State registration date: DB=> #{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}\n"
+                     msg +=  "Status: DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}\n"
+                     alert(10, msg)
+                   end
 
+           puts "<<<<<<<<<<<<<<<<company ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+         else
+           puts "<<<<<<<<<<<<<<<<<SAME company>>>>>>>>>>>>>>>>>>>>>>>>"
+             puts "CID DB => #{row[0]}"
              puts  "Identification Code: DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}"
              puts  "P number: DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}"
              puts  "State registration number: DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
              puts  "Name: DB=>#{row[4]} || scrapped=> #{data["დასახელება"]}"
              puts  "Legal Form:  DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}"
-             puts  "State registration date: DB=> #{row[6]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}"
-             puts  "Status: DB=> #{row[7]} || scrapped=> #{data["სტატუსი"]}"
-
-           puts "<<<<<<<<<<<<<<<<company ALERT!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-           puts "<<<<<<<<<<<<<<<<company UPDATE!>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-         else
-           puts "<<<<<<<<<<<<<<<<<SAME company>>>>>>>>>>>>>>>>>>>>>>>>"
+             puts  "State registration date: DB=> #{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}"
+             puts  "Status: DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}"
          end
       end
     end
   end
 end
-  
+
 def insert_person(data_line)
   data_line = data_line.gsub(/\n/, ' ')
   name = data_line.split(/.*/,1).last.gsub(/\s[(].*/, '')
@@ -1308,8 +1334,6 @@ end
 def get_application(link)
   doc_id = CGI.parse(link)['doc_id']
   app_id = CGI.parse(link)['app_id']
-  puts "doc_id = #{doc_id}"
-  puts "app id = #{app_id}"
   ext_param = {"c"=>"app","m"=>"show_doc", "doc_id"=>doc_id, "app_id"=>app_id}
     app_page = nil
     begin
@@ -1342,8 +1366,115 @@ end
 
 def alert(code, body)
   puts "<<<<<<<<<<<<<<<<<<<<<<<ALERT ALERT ALERT>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-  puts code
   puts body
+  File.open("alert_log.txt", 'a') {|f|
+    f.write(code)
+    f.write("\n")
+    f.write(body)
+    f.write("\n\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n\n")
+  }
 end
 
-action()
+#Sole entrepreneur 	1
+#SPS 			2text()
+#Cooperative 		3
+#LTD			4
+#Joint Stock Co.	5
+#Society limited	6
+#non-profit		7
+#Legal entity		10
+#Foreign enterprise	26
+#Foreign non-profit	27
+#Business Partnership	28
+
+def action(code, page, desc)
+  if page == "1"
+    set_page = false
+  else
+    set_page = true
+  end
+  first_surf = true
+  current_pg = Integer(page)
+  params = {"c"=>"search","m"=>"find_legal_persons","s_legal_person_idnumber"=>"","s_legal_person_name"=>"","s_legal_person_form"=>code}
+  pg = nil
+  begin
+    begin
+      begin
+        Timeout::timeout(5) {
+          pg = @br.post(BASE_URL + "/main.php",params,HDR)
+        }
+      rescue Timeout::Error
+        puts 'Fetching pg1 took too long, trying again...'
+        begin
+          break if Ping.pingecho("google.com",10,80)
+          puts "waiting for ping google.com"
+          sleep 2
+        end while(true)
+        next
+      end
+    rescue Exception => exc
+      puts "ERROR: #{exc.message} in action() pg1!\nTrying again in 5 seconds."
+      sleep 5
+      next
+    end
+    if first_surf == true
+      begin
+        number = Integer(s_text(Nokogiri::HTML(pg.body).xpath(".//td[contains(text(), 'სულ')]/strong")))
+      rescue Exception => exc
+        puts "ERROR: #{exc.message}"
+      end
+      first_surf = false
+      total_pg = number/5
+    end
+    scrape(pg.body)
+
+    if set_page == true
+      next_pg = page
+      set_page = false
+    else
+      next_pg = attributes(Nokogiri::HTML(pg.body).xpath(".//td/a[img[contains(@src,'next.png')]]"),"onclick").scan(/legal_person_paginate\((\d+)\)/).flatten.first
+    end
+
+    puts "NEXR PG = #{next_pg}"
+    if next_pg == nil && next_pg > (total_pg-1)
+      break
+    else
+      next_pg = current_pg
+    end
+    
+    params = {"c"=>"search","m"=>"find_legal_persons","p"=>next_pg}
+
+    File.open("./last_pages/last_page_#{desc}.txt", 'w') {|f|
+    f.write(code)
+    f.write("\n")
+    f.write("Page ->#{next_pg};")
+    f.close
+   }
+
+    sleep 0.25
+    current_pg += 1
+    puts "CURRENT PAGE = #{current_pg} TOTAL PAGES = #{total_pg}"
+  end while(true)
+end
+
+#Sole entrepreneur 	1
+#SPS 			2
+#action(2, "554", "SPS")
+#Cooperative 		3
+#action(3, "580", "Cooperative")
+#LTD			4
+action(4, "20020", "LTD")
+#Joint Stock Co.	5
+#action(5, "2010", "JointStock")
+#Society limited	6
+#action(6, "1", "SocietyLimited")
+#non-profit		7
+#action(7, "1222", "non-profit")
+#Legal entity		10
+#action(10, "1106", "Legal entity")
+#Foreign enterprise	26
+#action(26, "144", "ForeignEnterprise")
+#Foreign non-profit	27
+#action(27, "28", "ForeignNon-profit")
+#Business Partnership	28
+#action(28, "1", "BusinessP")
