@@ -1436,7 +1436,7 @@ def action(code, page, desc)
     end
 
     puts "NEXR PG = #{next_pg}"
-    if next_pg == nil && next_pg > (total_pg-1)
+    if next_pg == nil && current_pg > (total_pg-1)
       break
     else
       next_pg = current_pg
@@ -1459,22 +1459,22 @@ end
 
 #Sole entrepreneur 	1
 #SPS 			2
-#action(2, "554", "SPS")
+action(2, "554", "SPS")
 #Cooperative 		3
-#action(3, "580", "Cooperative")
+action(3, "580", "Cooperative")
 #LTD			4
-action(4, "20020", "LTD")
+action(4, "4542", "LTD")
 #Joint Stock Co.	5
-#action(5, "2010", "JointStock")
+action(5, "2010", "JointStock")
 #Society limited	6
-#action(6, "1", "SocietyLimited")
+action(6, "1", "SocietyLimited")
 #non-profit		7
-#action(7, "1222", "non-profit")
+action(7, "1222", "non-profit")
 #Legal entity		10
-#action(10, "1106", "Legal entity")
+action(10, "1106", "Legal entity")
 #Foreign enterprise	26
-#action(26, "144", "ForeignEnterprise")
+action(26, "2", "ForeignEnterprise")
 #Foreign non-profit	27
-#action(27, "28", "ForeignNon-profit")
+action(27, "28", "ForeignNon-profit")
 #Business Partnership	28
-#action(28, "1", "BusinessP")
+action(28, "1", "BusinessP")
