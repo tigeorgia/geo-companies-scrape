@@ -97,10 +97,10 @@ def fetch_pg2(cid)
 end
 
 def haskeyword(src)
-    ["áƒ§áƒ�áƒ“áƒ�áƒ¦áƒ�/áƒ�áƒ™áƒ áƒ«áƒ�áƒšáƒ•áƒ�","áƒ®áƒ”áƒšáƒ›áƒ«áƒ¦áƒ•áƒ�áƒœáƒ”áƒšáƒ�áƒ‘áƒ�áƒ–áƒ”", "áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒšáƒ�áƒ‘áƒ�áƒ–áƒ”","áƒ£áƒ¤áƒšáƒ”áƒ‘áƒ�áƒ›áƒ�áƒ¡áƒ˜áƒšáƒ˜" "áƒžáƒ˜áƒ áƒ”áƒ‘áƒ˜",
-      "áƒ“áƒ�áƒ›áƒ¤áƒ£áƒ«áƒœáƒ”áƒ‘áƒšáƒ”áƒ‘áƒ˜","áƒ¬áƒ˜áƒšáƒ˜","áƒ§áƒ�áƒ“áƒ�áƒ¦áƒ�/áƒ�áƒ™áƒ áƒ«áƒ�áƒšáƒ•áƒ�", "áƒžáƒ�áƒ áƒ¢áƒœáƒ˜áƒ�áƒ áƒ”áƒ‘áƒ˜", "áƒ¡áƒ�áƒ’áƒ�áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ�áƒ“áƒ� áƒ’áƒ˜áƒ áƒ�áƒ•áƒœáƒ�áƒ‘áƒ�/áƒ˜áƒžáƒ�áƒ—áƒ”áƒ™áƒ˜áƒ¡ áƒ£áƒ¤áƒšáƒ”áƒ‘áƒ�",
-    "áƒ›áƒ�áƒ«áƒ áƒ�áƒ• áƒœáƒ˜áƒ•áƒ—áƒ”áƒ‘áƒ¡áƒ� áƒ“áƒ� áƒ�áƒ áƒ�áƒ›áƒ�áƒ¢áƒ”áƒ áƒ˜áƒ�áƒšáƒ£áƒ  áƒ¥áƒ�áƒœáƒ”áƒ‘áƒ áƒ˜áƒ•", "áƒ›áƒ�áƒ•áƒ�áƒšáƒ”áƒ—áƒ� áƒ áƒ”áƒ”áƒ¡áƒ¢áƒ áƒ˜", "áƒ˜áƒœáƒ¤áƒ�áƒ áƒ›áƒ�áƒªáƒ˜áƒ� áƒšáƒ˜áƒ™áƒ•áƒ˜áƒ“áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ¨áƒ”áƒ¡áƒ�áƒ®áƒ”áƒ‘",
-    "áƒžáƒ áƒ�áƒ™áƒ£áƒ áƒ˜áƒ¡áƒ¢áƒ”áƒ‘áƒ˜", "áƒ¡áƒ£áƒ‘áƒ˜áƒ”áƒ¥áƒ¢áƒ˜", "áƒ áƒ”áƒ�áƒ áƒ’áƒ�áƒœáƒ˜áƒ–áƒ�áƒªáƒ˜áƒ�"].each do |key_word|
+    ["ყადაღა/აკრძალვა","ხელმძღვანელობაზე", "წარმომადგენლობაზე","უფლებამოსილი" "პირები",
+      "დამფუძნებლები","წილი","ყადაღა/აკრძალვა", "პარტნიორები", "საგადასახადო გირავნობა/იპოთეკის უფლება",
+    "მოძრავ ნივთებსა და არამატერიალურ ქონებრივ", "მოვალეთა რეესტრი", "ინფორმაცია ლიკვიდაციის შესახებ",
+    "პროკურისტები", "სუბიექტი", "რეორგანიზაცია"].each do |key_word|
         return true if src.include?(key_word)
     end
     return false
@@ -142,17 +142,17 @@ def scrape(data)
       end
       sleep 0.25
 
-      Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'áƒ’áƒ�áƒœáƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒ‘áƒ˜']]/tbody/tr").each{|tr|
+      Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'განცხადებები']]/tbody/tr").each{|tr|
         td3 = tr.xpath("td")
         app_id = attributes(td3[0].xpath("./a"),"onclick").split("(").last.gsub(")","")
         get_add(app_id)
       }
 
-      Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'áƒ¡áƒ™áƒ�áƒœáƒ˜áƒ áƒ”áƒ‘áƒ£áƒšáƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ”áƒ‘áƒ˜']]/tbody/tr").each{|tr|
+      Nokogiri::HTML(pg2.body).xpath(".//div[@id='container']/table[caption[text() = 'სკანირებული დოკუმენტები']]/tbody/tr").each{|tr|
         scols = tr.xpath("td")
         s_link = attributes(scols[0].xpath("./a"),"href")
         s_fname = scols[0].xpath("./a").text()
-        puts "INFO EXTRACT PAGE comp = #{records["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]} link = #{s_link} fname = #{s_fname}"
+        puts "INFO EXTRACT PAGE comp = #{records["საიდენტიფიკაციო კოდი"]} link = #{s_link} fname = #{s_fname}"
         if s_link != nil
           s_id = insert_scan(s_link, nil, s_fname)
           $scan_list.push(s_id)
@@ -358,9 +358,9 @@ def pdf_parser(file, link)
         words = line.gsub(/[\n]/, '').split(":")
         #puts "word 1 = #{words[0]}word 2 = #{words[1]}"
 
-        if previous_par == "áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜" and words[0]!= "áƒ”áƒšáƒ”áƒ¥áƒ¢áƒ áƒ�áƒœáƒ£áƒšáƒ˜ áƒ¤áƒ�áƒ¡áƒ¢áƒ�" and words[0]!= "áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜" and words[0]!= "áƒ¤áƒ�áƒ¥áƒ¢áƒ�áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"
-          if extract_data["áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"] != nil
-            buffer = extract_data["áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"] + words[0]
+        if previous_par == "იურიდიული მისამართი" and words[0]!= "ელექტრონული ფოსტა" and words[0]!= "საიდენტიფიკაციო კოდი" and words[0]!= "ფაქტობრივი მისამართი"
+          if extract_data["იურიდიული მისამართი"] != nil
+            buffer = extract_data["იურიდიული მისამართი"] + words[0]
           end
           extract_data[previous_par] = buffer
           previous_par = words[0]
@@ -369,19 +369,19 @@ def pdf_parser(file, link)
           previous_par = words[0]
         end
       end
-#      puts "Application Number = #{extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-#      puts "b_number= #{extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-#      puts "Date of preparation of an extract = #{extract_data["áƒ�áƒ›áƒ�áƒœáƒ�áƒ¬áƒ”áƒ áƒ˜áƒ¡ áƒ›áƒ�áƒ›áƒ–áƒ�áƒ“áƒ”áƒ‘áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}"
-#      puts "name = #{extract_data["áƒ¡áƒ�áƒ¤áƒ˜áƒ áƒ›áƒ� áƒ¡áƒ�áƒ®áƒ”áƒšáƒ¬áƒ�áƒ“áƒ”áƒ‘áƒ�"]}"
-#      puts "adress = #{extract_data["áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"]}"
-#      puts "Identification Code = #{extract_data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}"
-#      puts "legal form = #{extract_data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}"
-#      puts "email = #{extract_data["áƒ”áƒšáƒ”áƒ¥áƒ¢áƒ áƒ�áƒœáƒ£áƒšáƒ˜ áƒ¤áƒ�áƒ¡áƒ¢áƒ�"]}"
-#      puts "state reg date = #{extract_data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}"
-#      puts "the reg authority = #{extract_data["áƒ›áƒ�áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ˜áƒ áƒ”áƒ‘áƒ”áƒšáƒ˜ áƒ�áƒ áƒ’áƒ�áƒœáƒ�"]}"
-#      puts "IRA = #{extract_data["áƒ¡áƒ�áƒ’áƒ�áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ�áƒ“áƒ� áƒ˜áƒœáƒ¡áƒžáƒ”áƒ¥áƒªáƒ˜áƒ�"]}"
+#      puts "Application Number = #{extract_data["განაცხადის ნომერი"]}"
+#      puts "b_number= #{extract_data["განაცხადის რეგისტრაციის ნომერი"]}"
+#      puts "Date of preparation of an extract = #{extract_data["ამონაწერის მომზადების თარიღი"]}"
+#      puts "name = #{extract_data["საფირმო სახელწოდება"]}"
+#      puts "adress = #{extract_data["იურიდიული მისამართი"]}"
+#      puts "Identification Code = #{extract_data["საიდენტიფიკაციო კოდი"]}"
+#      puts "legal form = #{extract_data["სამართლებრივი ფორმა"]}"
+#      puts "email = #{extract_data["ელექტრონული ფოსტა"]}"
+#      puts "state reg date = #{extract_data["სახელმწიფო რეგისტრაციის თარიღი"]}"
+#      puts "the reg authority = #{extract_data["მარეგისტრირებელი ორგანო"]}"
+#      puts "IRA = #{extract_data["საგადასახადო ინსპექცია"]}"
       stm = $DB.prepare("SELECT * FROM extracts WHERE reg_number = ?")
-      stm.bind_params(extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"])
+      stm.bind_params(extract_data["განაცხადის რეგისტრაციის ნომერი"])
       result = stm.execute
 
       if result.next() == nil
@@ -392,13 +392,13 @@ def pdf_parser(file, link)
           VALUES(:cid, :eid, :reg_number, :application_num, :prep_date, :address, :email, :reg_authority, :tax_inspection, :link, :scrap_date)",
           "cid"=>$current_cid,
           "eid"=>new_eid,
-          "reg_number"=>extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"],
-          "application_num"=>extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"],
-          "prep_date"=>extract_data["áƒ�áƒ›áƒ�áƒœáƒ�áƒ¬áƒ”áƒ áƒ˜áƒ¡ áƒ›áƒ�áƒ›áƒ–áƒ�áƒ“áƒ”áƒ‘áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"],
-          "address"=>extract_data["áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"],
-          "email"=>extract_data["áƒ”áƒšáƒ”áƒ¥áƒ¢áƒ áƒ�áƒœáƒ£áƒšáƒ˜ áƒ¤áƒ�áƒ¡áƒ¢áƒ�"],
-          "reg_authority"=>extract_data["áƒ›áƒ�áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ˜áƒ áƒ”áƒ‘áƒ”áƒšáƒ˜ áƒ�áƒ áƒ’áƒ�áƒœáƒ�"],
-          "tax_inspection"=>extract_data["áƒ¡áƒ�áƒ’áƒ�áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ�áƒ“áƒ� áƒ˜áƒœáƒ¡áƒžáƒ”áƒ¥áƒªáƒ˜áƒ�"],
+          "reg_number"=>extract_data["განაცხადის რეგისტრაციის ნომერი"],
+          "application_num"=>extract_data["განაცხადის ნომერი"],
+          "prep_date"=>extract_data["ამონაწერის მომზადების თარიღი"],
+          "address"=>extract_data["იურიდიული მისამართი"],
+          "email"=>extract_data["ელექტრონული ფოსტა"],
+          "reg_authority"=>extract_data["მარეგისტრირებელი ორგანო"],
+          "tax_inspection"=>extract_data["საგადასახადო ინსპექცია"],
           "link"=>link,
           "scrap_date"=>Time.now.utc.iso8601)
           return_val = new_eid
@@ -423,13 +423,13 @@ def pdf_parser(file, link)
             ext_id = row[1]
             return_val = row[1]
             if row[0] != $current_cid or
-                row[2] != extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] or
-                row[3] != extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] or
-                row[4] != extract_data["áƒ�áƒ›áƒ�áƒœáƒ�áƒ¬áƒ”áƒ áƒ˜áƒ¡ áƒ›áƒ�áƒ›áƒ–áƒ�áƒ“áƒ”áƒ‘áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"] or
-                row[5] != extract_data["áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"] or
-                row[6] != extract_data["áƒ”áƒšáƒ”áƒ¥áƒ¢áƒ áƒ�áƒœáƒ£áƒšáƒ˜ áƒ¤áƒ�áƒ¡áƒ¢áƒ�"] or
-                row[7] != extract_data["áƒ›áƒ�áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ˜áƒ áƒ”áƒ‘áƒ”áƒšáƒ˜ áƒ�áƒ áƒ’áƒ�áƒœáƒ�"] or
-                row[8] != extract_data["áƒ¡áƒ�áƒ’áƒ�áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ�áƒ“áƒ� áƒ˜áƒœáƒ¡áƒžáƒ”áƒ¥áƒªáƒ˜áƒ�"]
+                row[2] != extract_data["განაცხადის რეგისტრაციის ნომერი"] or
+                row[3] != extract_data["განაცხადის ნომერი"] or
+                row[4] != extract_data["ამონაწერის მომზადების თარიღი"] or
+                row[5] != extract_data["იურიდიული მისამართი"] or
+                row[6] != extract_data["ელექტრონული ფოსტა"] or
+                row[7] != extract_data["მარეგისტრირებელი ორგანო"] or
+                row[8] != extract_data["საგადასახადო ინსპექცია"]
               msg = "The extract is eiter linked to several companies or was modified since the last scrape:\n"
                 stm_cc = $DB.prepare("SELECT * FROM company WHERE cid = ?")
                  stm_cc.bind_params(row[0])
@@ -437,13 +437,13 @@ def pdf_parser(file, link)
                  result.each do |line|
                   msg += "The extract of company name=#{line[4]} id=#{line[1]}, pcode=#{line[2]}\n"
                   msg += "cid :> #{row[0]} != #{$current_cid}\n"
-                  msg += "reg_number :> #{row[2]} != #{extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}\n"
-                  msg += "appnum :> #{row[3]} != #{extract_data["áƒ’áƒ�áƒœáƒ�áƒªáƒ®áƒ�áƒ“áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}\n"
-                  msg += "prep_date :> #{row[4]} != #{extract_data["áƒ�áƒ›áƒ�áƒœáƒ�áƒ¬áƒ”áƒ áƒ˜áƒ¡ áƒ›áƒ�áƒ›áƒ–áƒ�áƒ“áƒ”áƒ‘áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}\n"
-                  msg += "address #{row[5]} != #{extract_data["áƒ˜áƒ£áƒ áƒ˜áƒ“áƒ˜áƒ£áƒšáƒ˜ áƒ›áƒ˜áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒ˜"]}\n"
-                  msg += "email :> #{row[6]} != #{extract_data["áƒ”áƒšáƒ”áƒ¥áƒ¢áƒ áƒ�áƒœáƒ£áƒšáƒ˜ áƒ¤áƒ�áƒ¡áƒ¢áƒ�"]}\n"
-                  msg += "autority #{row[7]} != #{extract_data["áƒ›áƒ�áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ˜áƒ áƒ”áƒ‘áƒ”áƒšáƒ˜ áƒ�áƒ áƒ’áƒ�áƒœáƒ�"]}\n"
-                  msg += " IRA :> #{row[8]} != #{extract_data["áƒ¡áƒ�áƒ’áƒ�áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ�áƒ“áƒ� áƒ˜áƒœáƒ¡áƒžáƒ”áƒ¥áƒªáƒ˜áƒ�"]}\n"
+                  msg += "reg_number :> #{row[2]} != #{extract_data["განაცხადის რეგისტრაციის ნომერი"]}\n"
+                  msg += "appnum :> #{row[3]} != #{extract_data["განაცხადის ნომერი"]}\n"
+                  msg += "prep_date :> #{row[4]} != #{extract_data["ამონაწერის მომზადების თარიღი"]}\n"
+                  msg += "address #{row[5]} != #{extract_data["იურიდიული მისამართი"]}\n"
+                  msg += "email :> #{row[6]} != #{extract_data["ელექტრონული ფოსტა"]}\n"
+                  msg += "autority #{row[7]} != #{extract_data["მარეგისტრირებელი ორგანო"]}\n"
+                  msg += " IRA :> #{row[8]} != #{extract_data["საგადასახადო ინსპექცია"]}\n"
                  end
                  puts "ALERT UPDATE EXTRACT!"
                  alert(7, msg)
@@ -465,8 +465,8 @@ def pdf_parser(file, link)
 
       i = 0;
       while i<line_array.length do
-         if line_array[i].include?"áƒ®áƒ”áƒšáƒ›áƒ«áƒ¦áƒ•áƒ�áƒœáƒ”áƒšáƒ�áƒ‘áƒ�áƒ–áƒ”/áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒšáƒ�áƒ‘áƒ�áƒ–áƒ” áƒ£áƒ¤áƒšáƒ”áƒ‘áƒ�áƒ›áƒ�áƒ¡áƒ˜áƒšáƒ˜ áƒžáƒ˜áƒ áƒ”áƒ‘áƒ˜" #leadership
-           if line_array[i+1].include? "áƒ®áƒ”áƒšáƒ›áƒ«áƒ¦áƒ•áƒ�áƒœáƒ”áƒšáƒ�áƒ‘áƒ�áƒ–áƒ”/áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒšáƒ�áƒ‘áƒ�áƒ–áƒ” áƒ£áƒ¤áƒšáƒ”áƒ‘áƒ�áƒ›áƒ�áƒ¡áƒ˜áƒšáƒ˜ áƒžáƒ˜áƒ áƒ”áƒ‘áƒ˜"
+         if line_array[i].include?"ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები" #leadership
+           if line_array[i+1].include? "ხელმძღვანელობაზე/წარმომადგენლობაზე უფლებამოსილი პირები"
             j = i+1
            else
              j=i
@@ -495,8 +495,8 @@ def pdf_parser(file, link)
          end
 
 
-         if line_array[i].include?"áƒ“áƒ�áƒ›áƒ¤áƒ£áƒ«áƒœáƒ”áƒ‘áƒšáƒ”áƒ‘áƒ˜" #Founders
-           if line_array[i+1].include?"áƒ“áƒ�áƒ›áƒ¤áƒ£áƒ«áƒœáƒ”áƒ‘áƒšáƒ”áƒ‘áƒ˜"
+         if line_array[i].include?"დამფუძნებლები" #Founders
+           if line_array[i+1].include?"დამფუძნებლები"
              j = i+1
            else
              j = i
@@ -521,13 +521,13 @@ def pdf_parser(file, link)
          end
 
 
-         if line_array[i].include?"áƒžáƒ�áƒ áƒ¢áƒœáƒ˜áƒ�áƒ áƒ”áƒ‘áƒ˜áƒžáƒ�áƒ áƒ¢áƒœáƒ˜áƒ�áƒ áƒ”áƒ‘áƒ˜" #Partners
-           if line_array[i+1].include?"áƒžáƒ�áƒ áƒ¢áƒœáƒ˜áƒ�áƒ áƒ”áƒ‘áƒ˜áƒžáƒ�áƒ áƒ¢áƒœáƒ˜áƒ�áƒ áƒ”áƒ‘áƒ˜"
+         if line_array[i].include?"პარტნიორებიპარტნიორები" #Partners
+           if line_array[i+1].include?"პარტნიორებიპარტნიორები"
              j = i+2
            else
              j = i+1
            end
-           if line_array[j+1].include?"áƒ¬áƒ˜áƒšáƒ˜"
+           if line_array[j+1].include?"წილი"
              j = j+1
            end
            while !haskeyword(line_array[j+1]) do
@@ -549,13 +549,13 @@ def pdf_parser(file, link)
          end
 
 
-         if line_array[i].include?"áƒ“áƒ˜áƒ áƒ”áƒ¥áƒ¢áƒ�áƒ áƒ”áƒ‘áƒ˜" #directors
-           if line_array[i+1].include?"áƒ“áƒ˜áƒ áƒ”áƒ¥áƒ¢áƒ�áƒ áƒ”áƒ‘áƒ˜"
+         if line_array[i].include?"დირექტორები" #directors
+           if line_array[i+1].include?"დირექტორები"
              j = i+2
            else
              j = i+1
            end
-           if line_array[j+1].include?"áƒ¡áƒ£áƒ‘áƒ˜áƒ”áƒ¥áƒ¢áƒ˜"
+           if line_array[j+1].include?"სუბიექტი"
              j = j+1
            end
            while !haskeyword(line_array[j+1]) do
@@ -660,7 +660,7 @@ def get_add(id)
 
 
     #Scrapping pg3, preparing page data to be inserted in the database
-    b_number = s_text((Nokogiri::HTML(pg3.body).xpath(".//tr[td[contains(text(), 'áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜')]]/td/span[text()]")))
+    b_number = s_text((Nokogiri::HTML(pg3.body).xpath(".//tr[td[contains(text(), 'რეგისტრაციის ნომერი')]]/td/span[text()]")))
     page_data["b_number"] = b_number
     page_data["property_num"] = id
     page_data["cid"] = $current_cid
@@ -681,15 +681,15 @@ def get_add(id)
    $page_list.push(page_id)
 
    #checking for people whose name is written in corresponding entries
-   if page_data["áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜"] != nil
-     pid = insert_person(page_data["áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜"])
-     $pg_prsn_ls.push({pid, "áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜"})
+   if page_data["განმცხადებელი"] != nil
+     pid = insert_person(page_data["განმცხადებელი"])
+     $pg_prsn_ls.push({pid, "განმცხადებელი"})
      begin
         $DB.execute("INSERT INTO page_to_person(cid, page_id, pid, role, scrap_date) VALUES(:cid, :page_id, :pid, :role, :scrap_date)",
        "cid"=>$current_cid,
        "page_id"=>page_id,
        "pid"=>pid,
-       "role"=>"áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜",
+       "role"=>"განმცხადებელი",
        "scrap_date"=>Time.now.utc.iso8601)
 
        #A new person has appeared on a comp data that was scrapped previously
@@ -697,31 +697,31 @@ def get_add(id)
         alrt_bd = Hash.new
         alrt_bd["cid"] = $current_cid
         alrt_bd["pid"] = pid
-        alrt_bd["role"] = "áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜"
+        alrt_bd["role"] = "განმცხადებელი"
         alert(1, alrt_bd)
         $DB.execute("INSERT INTO page_to_person_update(cid, page_id, pid, insert_date, role) VALUES(:cid, :page_id, :pid, :insert_date, :role)",
          "cid"=>$current_cid,
          "page_id"=>page_id,
          "pid"=>pid,
          "insert_date"=>Time.now.utc.iso8601,
-         "role"=>"áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜")
+         "role"=>"განმცხადებელი")
        end
-       puts "A person pid = #{pid} linked to company cid = #{$current_cid} as áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜ (Applicant)"
+       puts "A person pid = #{pid} linked to company cid = #{$current_cid} as განმცხადებელი (Applicant)"
      rescue SQLite3::Exception => e
         puts "Exception occured"
         puts e
      end
    end
 
-  if page_data["áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜"] != nil
-     pid = insert_person(page_data["áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜"])
-     $pg_prsn_ls.push({pid,"áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜"})
+  if page_data["წარმომადგენელი"] != nil
+     pid = insert_person(page_data["წარმომადგენელი"])
+     $pg_prsn_ls.push({pid,"წარმომადგენელი"})
      begin
         $DB.execute("INSERT INTO page_to_person(cid, page_id, pid, role, scrap_date) VALUES(:cid, :page_id, :pid, :role, :scrap_date)",
        "cid"=>$current_cid,
        "page_id"=>page_id,
        "pid"=>pid,
-       "role"=>"áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜",
+       "role"=>"წარმომადგენელი",
        "scrap_date"=>Time.now.utc.iso8601)
 
        #A new person has appeared on a comp data that was scrapped previously
@@ -729,31 +729,31 @@ def get_add(id)
         alrt_bd = Hash.new
         alrt_bd["cid"] = $current_cid
         alrt_bd["pid"] = pid
-        alrt_bd["role"] = "áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜"
+        alrt_bd["role"] = "წარმომადგენელი"
         alert(1, alrt_bd)
         $DB.execute("INSERT INTO page_to_person_update(cid, page_id, pid, insert_date, role) VALUES(:cid, :page_id, :pid, :insert_date, :role)",
          "cid"=>$current_cid,
          "page_id"=>page_id,
          "pid"=>pid,
          "insert_date"=>Time.now.utc.iso8601,
-         "role"=>"áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜")
+         "role"=>"წარმომადგენელი")
        end
-        puts "A person pid = #{pid} linked to company cid = #{$current_cid} as áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ�áƒ“áƒ’áƒ”áƒœáƒ”áƒšáƒ˜ (Representative)"
+        puts "A person pid = #{pid} linked to company cid = #{$current_cid} as წარმომადგენელი (Representative)"
      rescue SQLite3::Exception => e
         puts "Exception occured"
         puts e
      end
    end
 
-   if page_data["áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜"] != nil
-     pid = insert_person(page_data["áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜"])
-     $pg_prsn_ls.push({pid, "áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜"})
+   if page_data["წარმომდგენი"] != nil
+     pid = insert_person(page_data["წარმომდგენი"])
+     $pg_prsn_ls.push({pid, "წარმომდგენი"})
      begin
         $DB.execute("INSERT INTO page_to_person(cid, page_id, pid, role, scrap_date) VALUES(:cid, :page_id, :pid, :role, :scrap_date)",
        "cid"=>$current_cid,
        "page_id"=>page_id,
        "pid"=>pid,
-       "role"=>"áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜",
+       "role"=>"წარმომდგენი",
        "scrap_date"=>Time.now.utc.iso8601)
 
        #A new person has appeared on a comp data that was scrapped previously
@@ -761,16 +761,16 @@ def get_add(id)
         alrt_bd = Hash.new
         alrt_bd["cid"] = $current_cid
         alrt_bd["pid"] = pid
-        alrt_bd["role"] = "áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜"
+        alrt_bd["role"] = "წარმომდგენი"
         alert(1, alrt_bd)
         $DB.execute("INSERT INTO page_to_person_update(cid, page_id, pid, insert_date, role) VALUES(:cid, :page_id, :pid, :insert_date, :role)",
          "cid"=>$current_cid,
          "page_id"=>page_id,
          "pid"=>pid,
          "insert_date"=>Time.now.utc.iso8601,
-         "role"=>"áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜")
+         "role"=>"წარმომდგენი")
        end
-        puts "A person pid = #{pid} linked to company cid = #{$current_cid} as áƒ¬áƒ�áƒ áƒ›áƒ�áƒ›áƒ“áƒ’áƒ”áƒœáƒ˜ (Presenting)"
+        puts "A person pid = #{pid} linked to company cid = #{$current_cid} as წარმომდგენი (Presenting)"
      rescue SQLite3::Exception => e
         puts "Exception occured"
         puts e
@@ -778,7 +778,7 @@ def get_add(id)
    end
 
    #scraping all scan-docs from the page3
-   Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'áƒ¡áƒ™áƒ�áƒœáƒ˜áƒ áƒ”áƒ‘áƒ£áƒšáƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ”áƒ‘áƒ˜']]/tr").each{|tr|
+   Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'სკანირებული დოკუმენტები']]/tr").each{|tr|
     scols = tr.xpath("td")
     s_date = s_text(scols[1].xpath("./span[2]"))
     s_link = attributes(scols[0].xpath("./a"),"href")
@@ -791,7 +791,7 @@ def get_add(id)
   }
 
   #scraping all application/status files from the page3
-  Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜ / áƒ’áƒ�áƒ“áƒ�áƒ¬áƒ§áƒ•áƒ”áƒ¢áƒ˜áƒšáƒ”áƒ‘áƒ�']]/tr").each{|tr|
+  Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'სტატუსი / გადაწყვეტილება']]/tr").each{|tr|
     acols = tr.xpath("td")
     a_date = s_text(acols[1].xpath("./span[@class = 'smalltxt']"))
     a_link = attributes(acols[0].xpath("./a"),"href")
@@ -820,13 +820,13 @@ def get_add(id)
           begin
             app_body = get_application(a_link)
             app_txt = app_body.gsub(/(\r|\n)/, '')
-            if app_txt.include?("áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜")
-              if app_txt.include?("áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜:&nbsp;<strong>")
-                person_name = pretify(app_txt.split(/(áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜:&nbsp;<strong>)/,2).last.gsub(/(<\/strong>).*/, ''))
-                person_number = pretify(app_txt.split(/(áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜:&nbsp;<strong>)/,2).last.gsub(/(<\/strong>).*/, ''))
+            if app_txt.include?("განმცხადებელი")
+              if app_txt.include?("საიდენტიფიკაციო კოდი:&nbsp;<strong>")
+                person_name = pretify(app_txt.split(/(განმცხადებელი:&nbsp;<strong>)/,2).last.gsub(/(<\/strong>).*/, ''))
+                person_number = pretify(app_txt.split(/(საიდენტიფიკაციო კოდი:&nbsp;<strong>)/,2).last.gsub(/(<\/strong>).*/, ''))
               else
-                person_name = pretify(app_txt.split(/(áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜:)/,2).last.gsub(/\s[\/].*/, ''))
-                person_number = pretify(app_txt.split(/(áƒ’áƒ�áƒœáƒ›áƒªáƒ®áƒ�áƒ“áƒ”áƒ‘áƒ”áƒšáƒ˜:)/,2).last.split(/[\/]/,2).last.gsub(/\/.*/, ''))
+                person_name = pretify(app_txt.split(/(განმცხადებელი:)/,2).last.gsub(/\s[\/].*/, ''))
+                person_number = pretify(app_txt.split(/(განმცხადებელი:)/,2).last.split(/[\/]/,2).last.gsub(/\/.*/, ''))
               end
               if  person_number != nil and person_name != nil
                 person_id = person_into_db(person_name, person_number, '')
@@ -888,14 +888,14 @@ def get_add(id)
 
 
   #Getting all the extracts in case it is a djvu file save it into the table of scandocs
-   Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'áƒ›áƒ�áƒ›áƒ–áƒ�áƒ“áƒ”áƒ‘áƒ£áƒšáƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ”áƒ‘áƒ˜']]/tr").each{|tr|
+   Nokogiri::HTML(pg3.body).xpath(".//div[@id='tabs-3']/div/table[caption[text() = 'მომზადებული დოკუმენტები']]/tr").each{|tr|
     rows = tr.xpath('td')
     if(rows.length < 3)
       next
     end
     #check if the document is available
     fname = s_text(rows[2])
-    if fname.include?("áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ˜ áƒ›áƒ˜áƒ£áƒ¬áƒ•áƒ“áƒ�áƒ›áƒ”áƒšáƒ˜áƒ�")
+    if fname.include?("დოკუმენტი მიუწვდომელია")
       next
     end
 
@@ -907,7 +907,7 @@ def get_add(id)
     extract_date = s_text(dummy[1].xpath("text()"))
 
     #check whether the document is djvu file or non-extract pdf, if true, saves the link to the file
-    if fname.end_with?(".djvu") or !text.include?("áƒ�áƒ›áƒ�áƒœáƒ�áƒ¬áƒ”áƒ áƒ˜")
+    if fname.end_with?(".djvu") or !text.include?("ამონაწერი")
       puts "DEJA VU file or non-extract file encountered in the exctracts"
       stm_djvu = $DB.prepare("SELECT * FROM scans WHERE link_to_scan = ?")
       stm_djvu.bind_params(link)
@@ -1008,14 +1008,14 @@ def insert_page(page_data)
           "page_id" => new_page_id,
           "property_num"=> page_data["property_num"],
           "B_number"=> page_data["b_number"],
-          "entity_name"=>page_data["áƒ¡áƒ£áƒ‘áƒ˜áƒ”áƒ¥áƒ¢áƒ˜áƒ¡ áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"],
-          "legal_form"=>page_data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"],
-          "reorg_type" => page_data["áƒ áƒ”áƒ�áƒ áƒ’áƒ�áƒœáƒ˜áƒ–áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ¢áƒ˜áƒžáƒ˜"] ,
-          "number_of"=> page_data["áƒ áƒ�áƒ�áƒ“áƒ”áƒœáƒ�áƒ‘áƒ�"],
-          "replacement_info"=>page_data["áƒ¨áƒ”áƒ¡áƒ�áƒªáƒ•áƒšáƒ”áƒšáƒ˜ áƒ áƒ”áƒ™áƒ•áƒ˜áƒ–áƒ˜áƒ¢áƒ˜:"],
-          "attached_docs"=>page_data["áƒ—áƒ�áƒœáƒ“áƒ�áƒ áƒ—áƒ£áƒšáƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ�áƒªáƒ˜áƒ�"],
-          "backed_docs"=>page_data["áƒ’áƒ�áƒ¡áƒ�áƒªáƒ”áƒ›áƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ”áƒ‘áƒ˜"],
-          "notes"=>page_data["áƒ¨áƒ”áƒœáƒ˜áƒ¨áƒ•áƒœáƒ�"],
+          "entity_name"=>page_data["სუბიექტის დასახელება"],
+          "legal_form"=>page_data["სამართლებრივი ფორმა"],
+          "reorg_type" => page_data["რეორგანიზაციის ტიპი"] ,
+          "number_of"=> page_data["რაოდენობა"],
+          "replacement_info"=>page_data["შესაცვლელი რეკვიზიტი:"],
+          "attached_docs"=>page_data["თანდართული დოკუმენტაცია"],
+          "backed_docs"=>page_data["გასაცემი დოკუმენტები"],
+          "notes"=>page_data["შენიშვნა"],
           "scrap_date"=>Time.now.utc.iso8601)
           return_value = new_page_id
    else
@@ -1025,14 +1025,14 @@ def insert_page(page_data)
         if row[0] != $current_cid or
               row[2] != page_data["property_num"] or
               row[3] != page_data["b_number"] or
-              row[4] != page_data["áƒ¡áƒ£áƒ‘áƒ˜áƒ”áƒ¥áƒ¢áƒ˜áƒ¡ áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"] or
-              row[5] != page_data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"] or
-              row[6] != page_data["áƒ áƒ”áƒ�áƒ áƒ’áƒ�áƒœáƒ˜áƒ–áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ¢áƒ˜áƒžáƒ˜"] or
-              row[7] != page_data["áƒ áƒ�áƒ�áƒ“áƒ”áƒœáƒ�áƒ‘áƒ�"] or
-              row[8] != page_data["áƒ¨áƒ”áƒ¡áƒ�áƒªáƒ•áƒšáƒ”áƒšáƒ˜ áƒ áƒ”áƒ™áƒ•áƒ˜áƒ–áƒ˜áƒ¢áƒ˜:"] or
-              row[9] != page_data["áƒ—áƒ�áƒœáƒ“áƒ�áƒ áƒ—áƒ£áƒšáƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ�áƒªáƒ˜áƒ�"] or
-              row[10] != page_data["áƒ’áƒ�áƒ¡áƒ�áƒªáƒ”áƒ›áƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ”áƒ‘áƒ˜"] or
-              row[11] != page_data["áƒ¨áƒ”áƒœáƒ˜áƒ¨áƒ•áƒœáƒ�"]
+              row[4] != page_data["სუბიექტის დასახელება"] or
+              row[5] != page_data["სამართლებრივი ფორმა"] or
+              row[6] != page_data["რეორგანიზაციის ტიპი"] or
+              row[7] != page_data["რაოდენობა"] or
+              row[8] != page_data["შესაცვლელი რეკვიზიტი:"] or
+              row[9] != page_data["თანდართული დოკუმენტაცია"] or
+              row[10] != page_data["გასაცემი დოკუმენტები"] or
+              row[11] != page_data["შენიშვნა"]
 
           msg = "A page is either is linked to several companies or modified since the last scrape\n"
           stm_r = $DB.prepare("SELECT * FROM company WHERE cid = ?")
@@ -1043,14 +1043,14 @@ def insert_page(page_data)
                     msg += "cid :> #{row[0]} != #{$current_cid}\n"
                     msg +=  "property_num :> #{row[2]} != #{page_data["property_num"]}\n"
                     msg += "b_number :> #{row[3]} != #{page_data["b_number"]}\n"
-                    msg += "Entity name :> #{row[4]} != #{page_data["áƒ¡áƒ£áƒ‘áƒ˜áƒ”áƒ¥áƒ¢áƒ˜áƒ¡ áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}\n"
-                    msg += "Legal form :> #{row[5]} != #{page_data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}\n"
-                    msg += "reorg_type :> #{row[6]} != #{page_data["áƒ áƒ”áƒ�áƒ áƒ’áƒ�áƒœáƒ˜áƒ–áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ¢áƒ˜áƒžáƒ˜"]}\n"
-                    msg += "number of :> #{row[7]} != #{page_data["áƒ áƒ�áƒ�áƒ“áƒ”áƒœáƒ�áƒ‘áƒ�"]}\n"
-                    msg += "Replacement info :> #{row[8]} != #{page_data["áƒ¨áƒ”áƒ¡áƒ�áƒªáƒ•áƒšáƒ”áƒšáƒ˜ áƒ áƒ”áƒ™áƒ•áƒ˜áƒ–áƒ˜áƒ¢áƒ˜:"]}\n"
-                    msg += "Attached docs :> #{row[9]} != #{page_data["áƒ—áƒ�áƒœáƒ“áƒ�áƒ áƒ—áƒ£áƒšáƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ�áƒªáƒ˜áƒ�"]}\n"
-                    msg += "Backed_docs :> #{row[10]} != #{page_data["áƒ’áƒ�áƒ¡áƒ�áƒªáƒ”áƒ›áƒ˜ áƒ“áƒ�áƒ™áƒ£áƒ›áƒ”áƒœáƒ¢áƒ”áƒ‘áƒ˜"]}\n"
-                    msg += "Notes :> #{row[11]} != #{page_data["áƒ¨áƒ”áƒœáƒ˜áƒ¨áƒ•áƒœáƒ�"]}\n"
+                    msg += "Entity name :> #{row[4]} != #{page_data["სუბიექტის დასახელება"]}\n"
+                    msg += "Legal form :> #{row[5]} != #{page_data["სამართლებრივი ფორმა"]}\n"
+                    msg += "reorg_type :> #{row[6]} != #{page_data["რეორგანიზაციის ტიპი"]}\n"
+                    msg += "number of :> #{row[7]} != #{page_data["რაოდენობა"]}\n"
+                    msg += "Replacement info :> #{row[8]} != #{page_data["შესაცვლელი რეკვიზიტი:"]}\n"
+                    msg += "Attached docs :> #{row[9]} != #{page_data["თანდართული დოკუმენტაცია"]}\n"
+                    msg += "Backed_docs :> #{row[10]} != #{page_data["გასაცემი დოკუმენტები"]}\n"
+                    msg += "Notes :> #{row[11]} != #{page_data["შენიშვნა"]}\n"
                     alert(9, msg)
                  end
                  stm_r.close
@@ -1074,10 +1074,10 @@ def insert_comp(data)
   query_qr = "SELECT * FROM COMPANY WHERE "
 
   #critical section some companies lack all of above fields to be revised for update!! TODO
-  if data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]== nil and data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]== nil
-      puts "The company (name = #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}) missing both id numbers, quering w/r to company name and reg. date."
+  if data["საიდენტიფიკაციო კოდი"]== nil and data["პირადი ნომერი"]== nil
+      puts "The company (name = #{data["დასახელება"]}) missing both id numbers, quering w/r to company name and reg. date."
       slct = $DB.prepare("SELECT * FROM company WHERE comp_name = ? AND state_reg_date = ?")
-      slct.bind_params(data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"], data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"])
+      slct.bind_params(data["დასახელება"], data["სახელმწიფო რეგისტრაციის თარიღი"])
       rslt = slct.execute
       rslt.reset()
       if rslt.next() != nil
@@ -1086,25 +1086,25 @@ def insert_comp(data)
         $comp_in_db = true
         rslt.each do |row|
           $current_cid = Integer(row[0])
-          if row[1] != data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"] or
-                 row[2] != data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] or
-                 row[3] != data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] or
-                 row[4] != data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"] or
-                 row[5] != data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"] or
-                 row[7] != data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"] or
-                 row[8] != data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]
+          if row[1] != data["საიდენტიფიკაციო კოდი"] or
+                 row[2] != data["პირადი ნომერი"] or
+                 row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or
+                 row[4] != data["დასახელება"] or
+                 row[5] != data["სამართლებრივი ფორმა"] or
+                 row[7] != data["სახელმწიფო რეგისტრაციის თარიღი"] or
+                 row[8] != data["სტატუსი"]
                  msg = "Company info with missing id numbers has been modified since the last scrape\n"
                  stm = $DB.prepare("SELECT * FROM company WHERE cid = ?")
                    stm.bind_params(row[0])
                    result = stm.execute
                    result.each do |line|
-                     msg +=  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}\n"
-                     msg +=  "P number: $DB=> #{row[2]} || scrapped=> #{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}\n"
-                     msg +=  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}\n"
-                     msg +=  "Name: $DB=> #{row[4]} || scrapped=> #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}\n"
-                     msg +=  "Legal form: $DB=> #{row[5]} || scrapped=> #{data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}\n"
-                     msg +=  "State reg date: $DB=>#{row[7]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}\n"
-                     msg +=  "Satus: $DB=> #{row[8]} || scrapped=> #{data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]}\n"
+                     msg +=  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}\n"
+                     msg +=  "P number: $DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}\n"
+                     msg +=  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}\n"
+                     msg +=  "Name: $DB=> #{row[4]} || scrapped=> #{data["დასახელება"]}\n"
+                     msg +=  "Legal form: $DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}\n"
+                     msg +=  "State reg date: $DB=>#{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}\n"
+                     msg +=  "Satus: $DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}\n"
                      alert(10, msg)
                    end
                  stm.close
@@ -1112,13 +1112,13 @@ def insert_comp(data)
           else
            puts "<<<<<<<<<<<<<<<<< SAME CRITICAL COMPANY>>>>>>>>>>>>>>>>>>>>>"
            puts "CID $DB => #{row[0]}"
-           puts  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}"
-           puts  "P number: $DB=> #{row[2]} || scrapped=> #{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-           puts  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-           puts  "Name: $DB=>#{row[4]} || scrapped=> #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}"
-           puts  "Legal Form:  $DB=> #{row[5]} || scrapped=> #{data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}"
-           puts  "State registration date: $DB=> #{row[7]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}"
-           puts  "Status: $DB=> #{row[8]} || scrapped=> #{data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]}"
+           puts  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}"
+           puts  "P number: $DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}"
+           puts  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
+           puts  "Name: $DB=>#{row[4]} || scrapped=> #{data["დასახელება"]}"
+           puts  "Legal Form:  $DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}"
+           puts  "State registration date: $DB=> #{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}"
+           puts  "Status: $DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}"
 
           end
         end
@@ -1128,19 +1128,19 @@ def insert_comp(data)
         $DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
         :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
           "cid" => $current_cid,
-          "id_code"=>data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"],
-          "p_code"=>data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"],
-          "state_reg_code"=>data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"],
-          "comp_name"=>data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"],
-          "legal_form"=>data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"],
-          "state_reg_date"=>data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"],
-          "status"=>data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"],
+          "id_code"=>data["საიდენტიფიკაციო კოდი"],
+          "p_code"=>data["პირადი ნომერი"],
+          "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
+          "comp_name"=>data["დასახელება"],
+          "legal_form"=>data["სამართლებრივი ფორმა"],
+          "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
+          "status"=>data["სტატუსი"],
           "scrap_date"=> Time.now.utc.iso8601)
 
       puts "<--------------------------A company inserted--------------------------->"
-      puts "CID = #{$current_cid}; ID=#{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}; P_code=#{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}; State_reg_code=#{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-      puts "Company name: #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}"
-      puts "legal form: #{data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}; state_reg_date=#{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]} status:#{data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]}"
+      puts "CID = #{$current_cid}; ID=#{data["საიდენტიფიკაციო კოდი"]}; P_code=#{data["პირადი ნომერი"]}; State_reg_code=#{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
+      puts "Company name: #{data["დასახელება"]}"
+      puts "legal form: #{data["სამართლებრივი ფორმა"]}; state_reg_date=#{data["სახელმწიფო რეგისტრაციის თარიღი"]} status:#{data["სტატუსი"]}"
       puts "Scrape date: #{Time.now.utc.iso8601}"
       puts "<----------------------------------------------------------------------->"
 
@@ -1152,16 +1152,16 @@ def insert_comp(data)
 
 
 
-  if data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"] != nil
-    query_qr = query_qr + " id_code = '#{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}' "
+  if data["საიდენტიფიკაციო კოდი"] != nil
+    query_qr = query_qr + " id_code = '#{data["საიდენტიფიკაციო კოდი"]}' "
     id_added = true
     valid_query = true
   end
-  if data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] != nil
+  if data["პირადი ნომერი"] != nil
     if id_added == true
       query_qr = query_qr + " OR "
     end
-    query_qr = query_qr + " p_code = '#{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}' "
+    query_qr = query_qr + " p_code = '#{data["პირადი ნომერი"]}' "
     pcode_added = true
     valid_query = true
   end
@@ -1175,19 +1175,19 @@ def insert_comp(data)
       $DB.execute("INSERT INTO company(cid, id_code, p_code, state_reg_code, comp_name, legal_form, state_reg_date, status, scrap_date) VALUES (
       :cid, :id_code, :p_code, :state_reg_code, :comp_name, :legal_form, :state_reg_date, :status, :scrap_date)",
         "cid" => $current_cid,
-        "id_code"=>data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"],
-        "p_code"=>data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"],
-        "state_reg_code"=>data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"],
-        "comp_name"=>data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"],
-        "legal_form"=>data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"],
-        "state_reg_date"=>data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"],
-        "status"=>data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"],
+        "id_code"=>data["საიდენტიფიკაციო კოდი"],
+        "p_code"=>data["პირადი ნომერი"],
+        "state_reg_code"=>data["სახელმწიფო რეგისტრაციის ნომერი"],
+        "comp_name"=>data["დასახელება"],
+        "legal_form"=>data["სამართლებრივი ფორმა"],
+        "state_reg_date"=>data["სახელმწიფო რეგისტრაციის თარიღი"],
+        "status"=>data["სტატუსი"],
         "scrap_date"=> Time.now.utc.iso8601)
 
       puts "<--------------------------A company inserted--------------------------->"
-      puts "CID = #{$current_cid}; ID=#{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}; P_code=#{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}; State_reg_code=#{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-      puts "Company name: #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}"
-      puts "legal form: #{data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}; state_reg_date=#{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]} status:#{data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]}"
+      puts "CID = #{$current_cid}; ID=#{data["საიდენტიფიკაციო კოდი"]}; P_code=#{data["პირადი ნომერი"]}; State_reg_code=#{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
+      puts "Company name: #{data["დასახელება"]}"
+      puts "legal form: #{data["სამართლებრივი ფორმა"]}; state_reg_date=#{data["სახელმწიფო რეგისტრაციის თარიღი"]} status:#{data["სტატუსი"]}"
       puts "Scrape date: #{Time.now.utc.iso8601}"
       puts "<----------------------------------------------------------------------->"
     else
@@ -1195,25 +1195,25 @@ def insert_comp(data)
       result.reset()
       result.each do |row|
         $current_cid = Integer(row[0])
-         if row[1] != data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"] or #Identification Code
-             row[2] != data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] or #P number
-             row[3] != data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"] or #state registration number
-             row[4] != data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"] or #name
-             row[5] != data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"] or #Legal Form
-             row[7] != data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"] or #State registration date
-             row[8] != data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"] #status
+         if row[1] != data["საიდენტიფიკაციო კოდი"] or #Identification Code
+             row[2] != data["პირადი ნომერი"] or #P number
+             row[3] != data["სახელმწიფო რეგისტრაციის ნომერი"] or #state registration number
+             row[4] != data["დასახელება"] or #name
+             row[5] != data["სამართლებრივი ფორმა"] or #Legal Form
+             row[7] != data["სახელმწიფო რეგისტრაციის თარიღი"] or #State registration date
+             row[8] != data["სტატუსი"] #status
              msg = "Company info with missing id numbers has been modified since the last scrape\n"
                  stm_m = $DB.prepare("SELECT * FROM company WHERE cid = ?")
                    stm_m.bind_params(row[0])
                    result = stm_m.execute
                    result.each do |line|
-                     msg +=  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}\n"
-                     msg +=  "P number: $DB=> #{row[2]} || scrapped=> #{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}\n"
-                     msg +=  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}\n"
-                     msg +=  "Name: $DB=>#{row[4]} || scrapped=> #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}\n"
-                     msg +=  "Legal Form:  $DB=> #{row[5]} || scrapped=> #{data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}\n"
-                     msg +=  "State registration date: $DB=> #{row[7]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}\n"
-                     msg +=  "Status: $DB=> #{row[8]} || scrapped=> #{data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]}\n"
+                     msg +=  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}\n"
+                     msg +=  "P number: $DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}\n"
+                     msg +=  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}\n"
+                     msg +=  "Name: $DB=>#{row[4]} || scrapped=> #{data["დასახელება"]}\n"
+                     msg +=  "Legal Form:  $DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}\n"
+                     msg +=  "State registration date: $DB=> #{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}\n"
+                     msg +=  "Status: $DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}\n"
                      alert(10, msg)
                    end
                    stm_m.close
@@ -1221,13 +1221,13 @@ def insert_comp(data)
          else
            puts "<<<<<<<<<<<<<<<<<SAME company>>>>>>>>>>>>>>>>>>>>>>>>"
              puts "CID $DB => #{row[0]}"
-             puts  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["áƒ¡áƒ�áƒ˜áƒ“áƒ”áƒœáƒ¢áƒ˜áƒ¤áƒ˜áƒ™áƒ�áƒªáƒ˜áƒ� áƒ™áƒ�áƒ“áƒ˜"]}"
-             puts  "P number: $DB=> #{row[2]} || scrapped=> #{data["áƒžáƒ˜áƒ áƒ�áƒ“áƒ˜ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-             puts  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒœáƒ�áƒ›áƒ”áƒ áƒ˜"]}"
-             puts  "Name: $DB=>#{row[4]} || scrapped=> #{data["áƒ“áƒ�áƒ¡áƒ�áƒ®áƒ”áƒšáƒ”áƒ‘áƒ�"]}"
-             puts  "Legal Form:  $DB=> #{row[5]} || scrapped=> #{data["áƒ¡áƒ�áƒ›áƒ�áƒ áƒ—áƒšáƒ”áƒ‘áƒ áƒ˜áƒ•áƒ˜ áƒ¤áƒ�áƒ áƒ›áƒ�"]}"
-             puts  "State registration date: $DB=> #{row[7]} || scrapped=> #{data["áƒ¡áƒ�áƒ®áƒ”áƒšáƒ›áƒ¬áƒ˜áƒ¤áƒ� áƒ áƒ”áƒ’áƒ˜áƒ¡áƒ¢áƒ áƒ�áƒªáƒ˜áƒ˜áƒ¡ áƒ—áƒ�áƒ áƒ˜áƒ¦áƒ˜"]}"
-             puts  "Status: $DB=> #{row[8]} || scrapped=> #{data["áƒ¡áƒ¢áƒ�áƒ¢áƒ£áƒ¡áƒ˜"]}"
+             puts  "Identification Code: $DB=> #{row[1]} || scrapped=> #{data["საიდენტიფიკაციო კოდი"]}"
+             puts  "P number: $DB=> #{row[2]} || scrapped=> #{data["პირადი ნომერი"]}"
+             puts  "State registration number: $DB=> #{row[3]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის ნომერი"]}"
+             puts  "Name: $DB=>#{row[4]} || scrapped=> #{data["დასახელება"]}"
+             puts  "Legal Form:  $DB=> #{row[5]} || scrapped=> #{data["სამართლებრივი ფორმა"]}"
+             puts  "State registration date: $DB=> #{row[7]} || scrapped=> #{data["სახელმწიფო რეგისტრაციის თარიღი"]}"
+             puts  "Status: $DB=> #{row[8]} || scrapped=> #{data["სტატუსი"]}"
          end
       end
     end
@@ -1238,11 +1238,11 @@ end
 def insert_person(data_line)
   data_line = data_line.gsub(/\n/, ' ')
   name = data_line.split(/.*/,1).last.gsub(/\s[(].*/, '')
-  if data_line.include? "(áƒ™áƒ�áƒ“áƒ˜:"
+  if data_line.include? "(კოდი:"
     #company acts like a person
-    p_n = data_line.split(/.*(áƒ™áƒ�áƒ“áƒ˜:)/,2).last.gsub(/[)].*/, '')
+    p_n = data_line.split(/.*(კოდი:)/,2).last.gsub(/[)].*/, '')
   else
-    p_n = data_line.split(/.*(\(áƒž\/áƒœ:)/,2).last.gsub(/[)].*/, '')
+    p_n = data_line.split(/.*(\(პ\/ნ:)/,2).last.gsub(/[)].*/, '')
   end
   p_n = p_n.gsub(' ', '')
   address = data_line.split(/.*/,1).last.gsub(/.*[)]/, '')
@@ -1440,7 +1440,7 @@ def action(code, page, desc)
     end
     if first_surf == true
       begin
-        number = Integer(s_text(Nokogiri::HTML(pg.body).xpath(".//td[contains(text(), 'áƒ¡áƒ£áƒš')]/strong")))
+        number = Integer(s_text(Nokogiri::HTML(pg.body).xpath(".//td[contains(text(), 'სულ')]/strong")))
       rescue Exception => exc
         puts "ERROR: #{exc.message}"
       end
