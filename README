@@ -1,3 +1,8 @@
+A scraper for the Georgian company registry: https://enreg.reestri.gov.ge
+
+The util folder contains handy scripts for dealing with the database that
+this scraper creates.
+
 DB descriptions:
 
 People(pid, name, address, p/n, date_of_birth)
