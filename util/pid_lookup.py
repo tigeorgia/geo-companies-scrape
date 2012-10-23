@@ -13,7 +13,7 @@ def main():
     parser.add_argument('database', help="The database file to search.")
     parser.add_argument('pids', help="A file containing personal ID numbers to search for, one ID per line.")
     parser.add_argument('--out', help="File to write output to", action='store')
-    parser.add_argument('--csv', help="CSV formatting", action='store_true')
+    parser.add_argument('--tsv', help="Tab-separated formatting", action='store_true')
     parser.add_argument('--collapse', help="Attempt to prune duplicate entries.", action='store_true')
 
     args = parser.parse_args()
@@ -33,12 +33,11 @@ def main():
     db = db_conn.cursor()
 
     ids = set(ifile) # Remove people who donated twice
-    total = 0.0
     for line in ids:
-        piradi,amt = line.split()
+        piradi = line.strip()
         try: 
             validate_personal_id(piradi)
-            if not args.csv:
+            if not args.tsv:
                 print("Searching for personal id {0}.".format(piradi))
         except ValueError as e:
             print e
@@ -46,8 +45,7 @@ def main():
         # Locate the person
         people = find_person(db,piradi)
         for pers in people:
-            total += float(amt)
-            if not args.csv:
+            if not args.tsv:
                 print(u"**Found {0}, {1}, {2}, {3}".format(pers['pid'],pers['name'],pers['address'],pers['personal_number']))
 
             #print(u"######## CHECKING PAGES ##########")
@@ -57,13 +55,11 @@ def main():
             corps = connections_by_page(db,pers['pid']).fetchall()
             if args.collapse and len(corps) > 0:
                 corps = collapse_pages(corps)
-            amtstr = '(GEL {})'.format(amt)
             for c in corps:
-                if not args.csv:
+                if not args.tsv:
                     print(u"{0}, {1}, {2}, {3}".format(c['cid'],c['comp_name'],c['role'],c['id_code']))
                 else:
-                    print(u'{} {}\t{}\t{}\t{}\t{}\t{}'.format(pers['name'],amtstr,pers['address'],pers['personal_number'],c['comp_name'],c['role'],c['id_code']))
-                    amtstr = u'' # Blank out the amount after the first run
+                    print(u'{}\t{}\t{}\t{}\t{}\t{}'.format(pers['name'],pers['address'],pers['personal_number'],c['comp_name'],c['role'],c['id_code']))
             #print(u"######## CHECKING EXTRACTS ########")
             #qstr = """SELECT * FROM person_to_extract
             #       JOIN company on person_to_extract.cid = company.cid
@@ -74,27 +70,28 @@ def main():
             if args.collapse and len(corps) > 0:
                 corps = latest_extracts(corps)
             for c in corps:
-                if not args.csv:
+                if not args.tsv:
                     print(u"{0}, {1}, {2}, {3}, {4}".format(c['cid'],c['comp_name'],c['role'],c['id_code'],c['prep_date']))
                 else:
-                    print(u'{} {}\t{}\t{}\t{}\t{}\t{}\t{}'.format(pers['name'],amtstr,pers['address'],pers['personal_number'],c['comp_name'],c['role'],c['id_code'],c['prep_date']))
-                    amtstr = u'' # Blank out the amount after the first run
+                    print(u'{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(pers['name'],pers['address'],pers['personal_number'],c['comp_name'],c['role'],c['id_code'],c['prep_date']))
 
 
         ############
         ### DONE ###
         ############
-        if not args.csv:
+        if not args.tsv:
             print("========================")
-    print(total)
     ifile.close()
     if args.out != None:
         ofile.close()
     
 def validate_personal_id(pid):
     pattern = re.compile('^\d{11,11}$') # A personal number is 11 digits
-    if len(pid) != 11 or pattern.match(pid) == None:
-        raise ValueError(u"Incorrect ID number format: {0}".format(pid))
+    if len(pid) != 11:
+        raise ValueError(u"ID Number must be 11 characters: {0}".format(pid))
+    if pattern.match(pid) == None:
+        raise ValueError(u"ID number must contain only digits. {0}".format(pid))
+
 
 def collapse_pages(rows):
     """Returns only one page listing per person/company/role"""
