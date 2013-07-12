@@ -1,3 +1,7 @@
+DON'T USE THIS -- We've used the lessons learned from this scraper to write a
+new one; it's much, much better, and it uses the Scrapy framework. 
+[https://github.com/tigeorgia/GeorgiaCorporationScraper](https://github.com/tigeorgia/GeorgiaCorporationScraper)
+
 A scraper for the Georgian company registry: https://enreg.reestri.gov.ge
 
 The util folder contains handy scripts for dealing with the database that
